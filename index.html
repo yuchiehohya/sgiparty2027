@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17334e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="地區友好總會">
+<title>2027 台中中區 地區友好總會</title>
+<style>
+  :root{
+    --navy:#17334e; --navy-2:#24496b; --ink:#1d2733; --muted:#6b7684;
+    --bg:#f5f3ee; --card:#ffffff; --line:#e4e0d6;
+    --gold:#b98a2f; --gold-soft:#f6ecd6;
+    --c-main:#17334e; --c-reh:#c0702b; --c-mini:#6a8f6b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; font-size:15px;
+    -webkit-text-size-adjust:100%;
+  }
+  button,input,select{font:inherit;color:inherit}
+
+  /* ===== Header ===== */
+  header{
+    background:var(--navy); color:#fff;
+    padding:calc(18px + env(safe-area-inset-top)) 18px 0;
+  }
+  .wrap{max-width:1040px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.18em;opacity:.7}
+  h1{margin:4px 0 2px;font-size:26px;letter-spacing:.06em;font-weight:700}
+  .sub{font-size:13px;opacity:.8;margin-bottom:14px}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .stat{background:rgba(255,255,255,.09);border-radius:10px;padding:7px 12px;font-size:12px}
+  .stat b{display:block;font-size:18px;font-weight:700;letter-spacing:.02em}
+  nav.tabs{display:flex;gap:4px}
+  nav.tabs button{
+    flex:1;max-width:180px;background:none;border:0;color:#fff;opacity:.65;
+    padding:12px 8px 11px;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:15px;
+  }
+  nav.tabs button.on{opacity:1;border-color:var(--gold)}
+
+  main{padding:16px 14px 40px}
+  .status{font-size:12px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:6px}
+  .dot{width:7px;height:7px;border-radius:50%;background:#9aa3ad;display:inline-block}
+  .dot.live{background:#3f9b5a}
+
+  /* ===== Filters ===== */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .filters select,.filters input{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:42px;
+  }
+  .filters input{flex:1;min-width:180px}
+  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{border:0;background:none;padding:7px 14px;border-radius:8px;cursor:pointer;color:var(--muted)}
+  .seg button.on{background:var(--navy);color:#fff}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:-4px 0 12px}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+  .legend label{cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+  .legend input{accent-color:var(--navy);margin:0}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+
+  /* ===== Calendar ===== */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+  .cal-head h2{margin:0;font-size:18px;letter-spacing:.04em}
+  .cal-head button{border:1px solid var(--line);background:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:18px}
+  .cal-head button:disabled{opacity:.3;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line)}
+  .dow{font-size:12px;color:var(--muted);text-align:center;padding:6px 0;border-bottom:1px solid var(--line)}
+  .dow.we{color:var(--gold)}
+  .day{
+    min-height:64px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:5px 4px;cursor:pointer;position:relative;background:#fff;text-align:left;border-top:0;border-left:0;
+    display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-width:0;
+  }
+  .day:nth-child(7n){border-right:0}
+  .day.out{background:#faf9f6;color:#c3c7cc;cursor:default}
+  .day .n{font-size:13px;font-weight:600;display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%}
+  .day.today .n{background:var(--gold);color:#fff}
+  .day.sel{background:var(--gold-soft)}
+  .chips{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+  .chip{font-size:11px;line-height:1.35;border-radius:4px;padding:1px 4px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chip.main{background:var(--c-main)} .chip.reh{background:var(--c-reh)} .chip.mini{background:var(--c-mini)}
+  .more{font-size:10px;color:var(--muted);padding-left:2px}
+  .dots{display:none;gap:3px;margin-top:4px;flex-wrap:wrap;justify-content:center}
+  .dots i{width:6px;height:6px;border-radius:50%;display:block}
+  .dots i.main{background:var(--c-main)} .dots i.reh{background:var(--c-reh)} .dots i.mini{background:var(--c-mini)}
+
+  /* ===== Agenda ===== */
+  .agenda{margin-top:14px}
+  .agenda h3{font-size:15px;margin:0 0 8px;padding:0 2px;color:var(--navy)}
+  .agenda h3 small{color:var(--muted);font-weight:400;margin-left:6px}
+  .ev{
+    display:flex;gap:12px;align-items:stretch;padding:12px;margin-bottom:8px;cursor:pointer;
+    background:#fff;border:1px solid var(--line);border-radius:12px;width:100%;text-align:left;
+  }
+  .ev:hover{border-color:#c9c3b4}
+  .ev .bar{width:4px;border-radius:4px;flex:none}
+  .ev .bar.main{background:var(--c-main)} .ev .bar.reh{background:var(--c-reh)} .ev .bar.mini{background:var(--c-mini)}
+  .ev .time{flex:none;width:52px;font-weight:700;font-size:15px;color:var(--navy)}
+  .ev .t{font-weight:700;font-size:15px}
+  .ev .tag{font-size:11px;padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:1px;font-weight:600}
+  .tag.main{background:#e3eaf1;color:var(--c-main)} .tag.reh{background:#f7e6d6;color:var(--c-reh)} .tag.mini{background:#e3eee3;color:#4b6d4c}
+  .ev .meta{font-size:13px;color:var(--muted)}
+  .empty{color:var(--muted);text-align:center;padding:28px 10px;font-size:14px}
+  .daygroup{margin-bottom:16px}
+
+  /* ===== Staff ===== */
+  .hq-title{font-size:13px;letter-spacing:.12em;color:var(--gold);font-weight:700;margin:18px 2px 8px}
+  .staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+  .sc{padding:14px 14px 10px}
+  .sc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;cursor:pointer}
+  .sc-h h4{margin:0;font-size:18px;color:var(--navy)}
+  .sc-h h4 small{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+  .sc-h .when{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+  .sec{font-size:11px;letter-spacing:.14em;color:var(--muted);margin:10px 0 4px;font-weight:700}
+  dl.roles{display:grid;grid-template-columns:92px 1fr;margin:0;font-size:14px}
+  dl.roles dt{color:var(--muted);padding:4px 0;border-top:1px dashed var(--line);font-size:13px}
+  dl.roles dd{margin:0;padding:4px 0;border-top:1px dashed var(--line)}
+  dl.roles dt:first-of-type,dl.roles dd:first-of-type{border-top:0}
+  mark{background:#ffe28a;padding:0 1px;border-radius:2px}
+  .count{font-size:13px;color:var(--muted);margin:-4px 2px 6px}
+
+  /* ===== Drawer ===== */
+  .scrim{position:fixed;inset:0;background:rgba(15,25,35,.45);display:none;z-index:20}
+  .scrim.open{display:block}
+  .drawer{
+    position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;z-index:21;
+    background:#fff;border-radius:18px 18px 0 0;padding:8px 18px calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(105%);transition:transform .25s ease,visibility .25s;visibility:hidden;
+  }
+  .drawer.open{transform:none;visibility:visible}
+  .grab{width:40px;height:4px;border-radius:4px;background:#d7d3c9;margin:4px auto 12px}
+  .drawer h2{margin:0;font-size:22px;color:var(--navy)}
+  .drawer .path{font-size:13px;color:var(--muted);margin-bottom:12px}
+  .close{position:absolute;right:14px;top:12px;border:0;background:#f1efe9;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer}
+  .sched{display:grid;gap:8px;margin-bottom:6px}
+  .sched div{border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+  .sched b{display:block;font-size:12px}
+  .sched .main b{color:var(--c-main)} .sched .reh b{color:var(--c-reh)} .sched .mini b{color:#4b6d4c}
+
+  @media (min-width:760px){
+    .drawer{left:auto;top:0;bottom:0;width:440px;max-height:none;border-radius:18px 0 0 18px;transform:translateX(105%)}
+    .drawer.open{transform:none}
+    .grab{display:none}
+    .day{min-height:96px}
+  }
+  @media (max-width:600px){
+    h1{font-size:22px}
+    .chips{display:none}
+    .dots{display:flex}
+    .day{min-height:54px;text-align:center;align-items:center}
+    dl.roles{grid-template-columns:84px 1fr}
+  }
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">台中中區 · 2027 年度</div>
+    <h1>地區友好總會</h1>
+    <div class="sub" id="range"></div>
+    <div class="stats" id="stats"></div>
+    <nav class="tabs">
+      <button class="on" data-tab="cal">行事曆</button>
+      <button data-tab="staff">工作人員一覽</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="status"><span class="dot" id="srcDot"></span><span id="srcText">資料載入中…</span></p>
+
+  <div class="filters">
+    <select id="fHq" aria-label="本部"><option value="">全部本部</option></select>
+    <select id="fBranch" aria-label="支部"><option value="">全部支部</option></select>
+    <input id="fSearch" type="search" placeholder="搜尋地區或姓名，例如：宣瑋" hidden>
+    <div class="seg" id="viewSeg">
+      <button class="on" data-view="month">月曆</button>
+      <button data-view="list">列表</button>
+    </div>
+  </div>
+
+  <!-- 行事曆 -->
+  <section id="tab-cal">
+    <div class="legend">
+      <label><input type="checkbox" data-type="main" checked><span style="--c:var(--c-main)">正式場次</span></label>
+      <label><input type="checkbox" data-type="reh" checked><span style="--c:var(--c-reh)">彩排</span></label>
+      <label><input type="checkbox" data-type="mini" checked><span style="--c:var(--c-mini)">沙推／小彩排</span></label>
+    </div>
+    <div id="monthView">
+      <div class="card">
+        <div class="cal-head">
+          <button id="prev" aria-label="上個月">‹</button>
+          <h2 id="monthTitle"></h2>
+          <button id="next" aria-label="下個月">›</button>
+        </div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="agenda" id="dayAgenda"></div>
+    </div>
+    <div id="listView" class="agenda" hidden></div>
+  </section>
+
+  <!-- 工作人員 -->
+  <section id="tab-staff" hidden>
+    <p class="count" id="staffCount"></p>
+    <div id="staffList"></div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog">
+  <div class="grab"></div>
+  <button class="close" id="closeDrawer" aria-label="關閉">×</button>
+  <div id="drawerBody"></div>
+</aside>
+
+<script>
+/* ================================================================
+   設定：部署 Apps Script 後，把網址貼在 API_URL
+   ================================================================ */
+const CONFIG = {
+  API_URL: '',          // 例如 'https://script.google.com/macros/s/xxxxxx/exec'
+  YEAR: 2026,           // 場次日期所在的年份（表上只有月/日）
+  SNAPSHOT_DATE: '2026/11/23'
+};
+
+/* 離線快照：API 還沒設定或連不上時使用（已移除電話）
+   欄位順序與 Code.gs 回傳的 rows 相同 */
+const SNAPSHOT = [
+["中清","同榮","洲際","12/13","日","15:30","台中會館(大)","12/3","四","19:30","台中會館(小>大)","","12/8／小彩","","","94","","男：林召翊","男:靖凱","曾詩涵","陳宣瑋","女：林雨蓁／女：李采蓁","區副婦人部長  蔡雪鳳","多寶表演","召翊","陳敬","簡之鈴","浩偉","成本毅","","","","","珞涵","淑媚","郁馨","維昀","宣瑋"],
+["中清","同榮","敦化","11/29","日","15:30","台中會館(大)","11/20","五","19:30","台中會館(大)-同榮未來部第一場/不換場地","11/11","(三)","","","107","","男大：楊秉宸","男:靖凱","莊美琳","陳宣瑋","壯：蕭景聰+婦：林玉芬／(夫妻)","圈副總合長  鄧清榮","帶動跳","在勛","在勛","陳宣瑋","志鴻","楊宗翰","","","","","宣瑋","宣瑋","郁馨","珊萍",""],
+["中清","同榮","后庄","12/6","日","10:00","台中會館(大)","11/25","三","19:30","台中會館(小)/全程使用小佛堂，不換場地","11/23","(二)","","","103","","女高：邱鈺瑄","陳宣瑋","張士蘭","陳宣瑋","婦：胡宇嫻(惠來)","副區長 彭衍任","陽光后庄合唱團／曲目：流星雨","陳敬","召翊","林郁馨","冠宏","林品寬","","","","","珞涵","淑媚","郁馨","維昀","宣瑋"],
+["中清","北屯","新民","11/29","日","10:00","台中會館(大)","11/19","四","19:30","台中會館(大)-北屯未來部第一場/不換場地","11/10","","","","116","","男大：湯鈞浩","傅祥瑋","劉宇珊","邱于甄","男：黃柏傑／女：王右筑","區企劃長 何晉堂","身體健康動次動／曲目：／壯：／婦：／男：／女：","施正心","莊貴丞","施正心","","李源輝","","","","","俐雅","廣宜","綵玲","于甄",""],
+["中清","北屯","雙十","11/29","日","13:00","台中會館(大)","11/20","五","19:30","台中會館(小)/全程使用小佛堂，不換場地","11/24","(二)","","","129","","男生：劉秉翰","","黃端紅","邱于甄","婦：楊秋滿(國美)+／(婦)江林鳳／(親子)","區副婦人部長  林敏華","身體健康動次動／曲目：／壯：／婦：／男：／女：","李祈逸","李祈逸","車亮儀","王俊弘","宋才良","","","","","","","","",""],
+["中清","北屯","三光","12/12","六","13:00","台中會館(大)","12/1","二","19:30","台中會館(大>小)","11/24","(二)","","","135","","婦：洪美惠+未來部：采恩","","張亞琳","洪梓榆","婦：謝宜玲(國美)+／(女高)施穎媗／(親子)／穎媗彩排不會到","區副總合長 黃榮輝","","傅祥瑋","傅祥瑋","張綵玲","","蔡西光","","","","","","","","",""],
+["中清","北屯","東山","12/12","六","15:30","台中會館(大)","12/1","二","19:30","台中會館(小>大)","11/06","","","","102","","男國：吳冠岳","","蔡怡萱","洪梓榆","男  : 陳禾喬","副圈長  徐宗言","地方特色文化猜謎／壯年部主持、建智製作PPT","建智","建智","邱于甄","","楊峻瑀","","","","","","","","",""],
+["中清","文心","水湳","12/6","日","13:00","台中會館(大)","11/30","一","19:30","台中會館(大>小)","11/24","(二)","19:50","地區聚點","125","","女大：吳昕嬡、男大：王宥文","林宜葶","林子辰","王姿婷","男 : 陳敬","副區長 陳東明","帶動教學：韓國歌曲","","","許家榛","","蕭景聰(專人協助)","","","","","","","","",""],
+["中清","文心","博館","12/6","日","15:30","台中會館(大)","11/30","一","19:30","台中會館(小>大)","11/24","(二)","19:50","地區聚點","120","","女大：許家臻、男大：蕭戰","林宜葶","林玉芳","","婦：劉麗雲(英才)+／(男大)李柏逸／(親子)","區婦人部企劃長 黃楨雅","金曲歌王就是你：／婦人部：淑珍、玉芳","","","楊媛婷","","蕭景聰(專人協助)","","","","","","","","",""],
+["中清","文心","立人","12/5","六","19:30","台中會館(大)","11/25","三","19:30","台中會館(大)-文心未來部第一場/不換場地","11/16","(一)","19:50","地區聚點","140","","女：王宥媁、王右筑","張君慈","林婉瑜","","女：莊凱霓","區長 劉浤祺","四部帶動大合唱／曲目：歡喜來恰恰","","","許家榛","","楊峻瑀","","","","","","","","",""],
+["中清","文心","永興","12/12","六","19:30","台中會館(大)","12/3","四","19:30","台中會館(大>小)","11/26","(四)","19:30","地區聚點","140","","女研：劉芮柔、林沛楹","張君慈","張雅雯","","壯：曾文威+未：曾皇昊／(兄弟)","區副婦人部長 魏瑟琴","藝文饗宴-吉他才藝表演／壯年部：莊世雄","","","林宜葶","","何晉堂","","","","","","","","",""],
+["中興","朝馬","逢甲","12/6","日","15:30","金弘笙講堂(大)","12/1","二","19:30","金弘笙講堂(小>大)","11/26","（四）","19:50","地區據點","85","","男國：黃宥澄 +男：康學昕","詹仁寬","林方芸","李佩諠","壯：王碧成","區副婦人部長 陳鳳綿","地區人文記憶大考驗 壯年部：曾文威","","","何芊儀","","劉伯文(彩排-黃議德)","","","","","馨慧","育柔","于珊","佳蓉","方澧"],
+["中興","朝馬","至善","12/6","日","13:00","金弘笙講堂(大)","12/1","二","19:30","金弘笙講堂(大>小)","11/26","（四）","19:30","地區據點","81","","女大：鄭昀真、女大：林芯宇","林佳蓉","曾佳惠","","婦：(新民)蘇姵慈+／(女)張綵玲／(親子)","中興本部總合長 石景岩","","","","林芳澧","","劉伯文","","","","","方澧","育柔","于珊","","馨慧"],
+["中興","朝馬","惠來","12/5","六","19:30","金弘笙講堂(大)","11/25","三","19:30","金弘笙講堂(大)-朝馬未來部第一場/不換場地","11/19","（四）","19:50","地區據點","104","","男國：賴宥安+婦：文鈴姐","林彥佑","林怡婷","","男：吳在勛","圈副婦人部長  吳靜蓉","","","","黃馨慧","","張憲偉","","","","","馨慧","佩諠","","佳蓉","方澧"],
+["中興","文華","中山","12/12","六","19:30","金弘笙講堂(大)","12/3","四","19:30","金弘笙講堂(小>大)","","","","","110","","女大：林宥慧","","譚玉英","張齡文","女： 簡煜慬／(人在日本，女子部確認)","區副總合長 杜仁桂","婦人部帶動跳-跳進來","王思涵","陳羿呈","王思涵","","蔡瑞祥","","","","","","","嘉貽","",""],
+["中興","文華","何厝","12/6","日","10:00","金弘笙講堂(大)","11/30","一","19:30","金弘笙講堂(大)-文華未來部第一場/不換場地","","","","","123","","父子檔：父-梁智斌VS未來部-梁陞毓","","楊玉潔","","壯：傅宗楫+婦：林淑卿／(夫妻)","圈婦人部企劃長  林玉惠","四部帶動跳-丟丟銅仔","尤建智","尤建智","陳品如","","楊宗翰","","","","","","","鈞瑛","",""],
+["中興","文華","興隆","12/12","六","15:30","金弘笙講堂(大)","12/3","四","19:30","金弘笙講堂(大>小)","","","","","110","","男子部：吳冠頡","","田蓉慈","","婦：(雙十)劉橞筠+／(男大)游家任／(親子)","區總合長 劉憲勳","壯年部口琴表演","陳風宇","陳風宇","","","李建男","","","","","思涵","","品如","鈞瑛",""],
+["中興","忠明","精進","12/5","六","13:00","金弘笙講堂(大)","11/24","二","19:30","金弘笙講堂(大)-忠明未來部第一場/不換場地","11/19","(四)","19:50","","51","","壯:黃共盛+女國:黃詩晴","女大:王妙如+王思蘋","吳雅惠","梁溥津","婦：張亞琳(三光)／彩排無法到／(由中興婦人部本企黃詩容代唸)","圈副總合長  陳欽銓","猜歌大賽","","","梁溥津","","李德明(陳明鴻協助)","","","","","","","","",""],
+["中興","忠明","英才","12/5","六","15:30","金弘笙講堂(大)","11/25","三","19:30","金弘笙講堂(小)/全程使用小佛堂，不換場地","11/18","(三)","19:30","","152","","婦: 美珠+女國:宜宸","","彭御兒","","婦：蔡怡萱(東山)","區副婦人部長  林燕彰","帶動跳:練舞功","","","劉佩愈","","李德明(陳明鴻協助)","","","","","","","","",""],
+["中興","忠明","國美","12/13","日","13:00","金弘笙講堂(大)","12/7","一","19:30","金弘笙講堂(大>小)","12/01","(二)","19:50","","103","","女高:施穎媗","","楊秋滿","","婦：孫金花／女：王宥媁／(祖孫)","副區長 柴正鈞","台語猜猜樂","","","王妙如","","李陽 林南斌","","","","","","","","",""],
+["中興","忠明","樂群","12/13","日","15:30","金弘笙講堂(大)","12/7","一","19:30","金弘笙講堂(小>大)","12/02","(三)","19:50","","77","","女大:葉家瑜","","張馨文","","壯：郭光輝","區副婦人部長 劉易凡","猜歌大賽","","","許維芯","","李陽 林南斌","","","","","","","","",""]
+];
+
+/* ===== 工作人員欄位（對應 rows 的位置）===== */
+const ROLE_GROUPS = [
+  { name:'節目', roles:[[17,'司儀'],[18,'司儀保母'],[19,'未來部表演'],[21,'幸福1+1體驗'],[22,'指導幹部'],[23,'地區聚光燈'],[16,'拍照／互動區']] },
+  { name:'場務', roles:[[25,'場控'],[26,'催場'],[24,'剪影 PPT'],[27,'青年部音控'],[28,'金城會音效'],[29,'攝影']] },
+  { name:'服務', roles:[[20,'服務負責人'],[33,'前輩引導'],[34,'台上引導'],[35,'台下引導'],[36,'遞獎者'],[37,'端獎者'],[30,'創價班負責人'],[31,'創價班'],[32,'創價班']] }
+];
+const TYPE_LABEL = { main:'正式場次', reh:'彩排', mini:'沙推／小彩排' };
+const WD = ['日','一','二','三','四','五','六'];
+
+/* ===== State ===== */
+let districts = [];
+let events = [];
+const state = { tab:'cal', view:'month', hq:'', branch:'', q:'', types:new Set(['main','reh','mini']), month:null, sel:null };
+
+/* ===== Helpers ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const br = s => esc(s).replace(/／/g, '<br>');
+const key = d => `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+function parseMD(s){
+  const m = String(s||'').match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+  return m ? new Date(CONFIG.YEAR, +m[1]-1, +m[2]) : null;
+}
+const fmtDate = d => `${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）`;
+function hl(text, q){
+  const h = br(text);
+  if(!q) return h;
+  const qq = esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return h.replace(new RegExp(qq,'g'), m => `<mark>${m}</mark>`);
+}
+
+/* ===== Data → model ===== */
+function build(rows){
+  districts = rows.map(r => {
+    // 小彩排：有時日期寫在備註欄（例如「12/8／小彩」）
+    let mDate = parseMD(r[11]), mNote = r[12];
+    if(!mDate && parseMD(r[12])){ mDate = parseMD(r[12]); }
+    mNote = (mNote||'').replace(/^[（(][一二三四五六日][)）]$/,'').replace(/^\d{1,2}\/\d{1,2}／?/,'');
+    return {
+      hq:r[0], branch:r[1], name:r[2], target:r[15], raw:r,
+      main:{ date:parseMD(r[3]), time:r[5], venue:r[6] },
+      reh: { date:parseMD(r[7]), time:r[9], venue:r[10] },
+      mini:{ date:mDate, time:r[13], venue:r[14], note:mNote }
+    };
+  });
+  events = [];
+  districts.forEach(d => ['main','reh','mini'].forEach(t => {
+    if(d[t].date) events.push({ type:t, d, date:d[t].date, time:d[t].time||'', venue:d[t].venue||'', note:d[t].note||'' });
+  }));
+  events.sort((a,b) => a.date - b.date || (a.time||'99').localeCompare(b.time||'99'));
+}
+
+function inFilter(d){
+  return (!state.hq || d.hq === state.hq) && (!state.branch || d.branch === state.branch);
+}
+function visibleEvents(){
+  return events.filter(e => inFilter(e.d) && state.types.has(e.type));
+}
+
+/* ===== Header ===== */
+function renderHeader(){
+  const mains = events.filter(e => e.type==='main');
+  const first = mains[0]?.date, last = mains[mains.length-1]?.date;
+  $('#range').textContent = first ? `正式場次 ${first.getMonth()+1}/${first.getDate()} – ${last.getMonth()+1}/${last.getDate()}` : '';
+  const target = districts.reduce((s,d) => s + (parseInt(d.target)||0), 0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next = mains.find(e => e.date >= today);
+  const daysLeft = next ? Math.round((next.date - today)/864e5) : null;
+  $('#stats').innerHTML = `
+    <div class="stat"><b>${districts.length}</b>地區場次</div>
+    <div class="stat"><b>${target.toLocaleString()}</b>出席目標</div>
+    ${next ? `<div class="stat"><b>${daysLeft===0?'今天':daysLeft+' 天'}</b>下一場：${esc(next.d.name)}</div>` : ''}`;
+}
+
+function fillFilters(){
+  const hqs = [...new Set(districts.map(d => d.hq))];
+  $('#fHq').innerHTML = '<option value="">全部本部</option>' + hqs.map(h => `<option ${h===state.hq?'selected':''}>${esc(h)}</option>`).join('');
+  fillBranches();
+}
+function fillBranches(){
+  const brs = [...new Set(districts.filter(d => !state.hq || d.hq===state.hq).map(d => d.branch))];
+  if(state.branch && !brs.includes(state.branch)) state.branch = '';
+  $('#fBranch').innerHTML = '<option value="">全部支部</option>' + brs.map(b => `<option ${b===state.branch?'selected':''}>${esc(b)}</option>`).join('');
+}
+
+/* ===== Calendar ===== */
+function monthsWithEvents(){
+  const s = new Set(events.map(e => `${e.date.getFullYear()}-${e.date.getMonth()}`));
+  return [...s].map(x => x.split('-').map(Number)).sort((a,b) => a[0]-b[0] || a[1]-b[1]);
+}
+function renderMonth(){
+  const [y,m] = state.month;
+  $('#monthTitle').textContent = `${y} 年 ${m+1} 月`;
+  const ms = monthsWithEvents();
+  const idx = ms.findIndex(x => x[0]===y && x[1]===m);
+  $('#prev').disabled = idx <= 0;
+  $('#next').disabled = idx === -1 || idx >= ms.length-1;
+
+  const byDay = {};
+  visibleEvents().forEach(e => (byDay[key(e.date)] ||= []).push(e));
+
+  const first = new Date(y,m,1), start = new Date(y,m,1-first.getDay());
+  const lastDay = new Date(y,m+1,0);
+  const cells = Math.ceil((first.getDay() + lastDay.getDate())/7)*7;
+  const todayK = key(new Date());
+  let html = WD.map((w,i) => `<div class="dow ${i===0||i===6?'we':''}">${w}</div>`).join('');
+  for(let i=0;i<cells;i++){
+    const d = new Date(start); d.setDate(start.getDate()+i);
+    const out = d.getMonth() !== m, k = key(d), evs = byDay[k] || [];
+    const chips = evs.slice(0,3).map(e => `<span class="chip ${e.type}">${e.type==='main'?'':TYPE_LABEL[e.type].slice(0,2)+'・'}${esc(e.d.name)}</span>`).join('')
+      + (evs.length>3 ? `<span class="more">+${evs.length-3}</span>` : '');
+    const dots = evs.map(e => `<i class="${e.type}"></i>`).join('');
+    html += `<button class="day ${out?'out':''} ${k===todayK?'today':''} ${state.sel===k?'sel':''}" ${out?'disabled':''} data-k="${k}">
+      <span class="n">${d.getDate()}</span>${out?'':`<div class="chips">${chips}</div><div class="dots">${dots}</div>`}</button>`;
+  }
+  $('#grid').innerHTML = html;
+  $('#grid').querySelectorAll('.day:not(.out)').forEach(b => b.onclick = () => { state.sel = b.dataset.k; renderMonth(); });
+  renderDayAgenda(byDay);
+}
+function renderDayAgenda(byDay){
+  const el = $('#dayAgenda');
+  if(!state.sel){ el.innerHTML = ''; return; }
+  const [y,m,d] = state.sel.split('-').map(Number);
+  const date = new Date(y,m-1,d);
+  const evs = byDay[state.sel] || [];
+  el.innerHTML = `<h3>${fmtDate(date)}<small>${evs.length ? evs.length+' 項' : ''}</small></h3>` +
+    (evs.length ? evs.map(evHTML).join('') : '<div class="empty">這天沒有安排</div>');
+  bindEv(el);
+}
+function evHTML(e){
+  const d = e.d;
+  return `<button class="ev" data-n="${esc(d.name)}">
+    <span class="bar ${e.type}"></span>
+    <span class="time">${esc(e.time||'—')}</span>
+    <span><span class="t">${esc(d.name)}</span><span class="tag ${e.type}">${TYPE_LABEL[e.type]}</span>
+      <div class="meta">${esc(d.branch)}支部 · ${esc(e.venue||'地點未定')}${e.note?' · '+esc(e.note):''}</div></span>
+  </button>`;
+}
+function bindEv(root){ root.querySelectorAll('.ev').forEach(b => b.onclick = () => openDistrict(b.dataset.n)); }
+
+function renderList(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const evs = visibleEvents();
+  const groups = {};
+  evs.forEach(e => (groups[key(e.date)] ||= { date:e.date, items:[] }).items.push(e));
+  const arr = Object.values(groups);
+  const html = arr.map(g => `<div class="daygroup" ${g.date<today?'style="opacity:.55"':''}>
+      <h3>${fmtDate(g.date)}${g.date<today?'<small>已結束</small>':''}</h3>${g.items.map(evHTML).join('')}</div>`).join('');
+  $('#listView').innerHTML = html || '<div class="empty">沒有符合的場次</div>';
+  bindEv($('#listView'));
+  const firstUpcoming = [...$('#listView').querySelectorAll('.daygroup')].find(x => !x.style.opacity);
+  if(firstUpcoming && state._scrollList){ firstUpcoming.scrollIntoView({block:'start'}); state._scrollList=false; }
+}
+
+/* ===== Staff ===== */
+function rolesHTML(d, q){
+  return ROLE_GROUPS.map(g => {
+    // 合併同名角色（例如兩欄創價班）
+    const merged = [];
+    g.roles.forEach(([i,label]) => {
+      const v = d.raw[i];
+      if(!v) return;
+      const ex = merged.find(x => x.label===label);
+      ex ? ex.vals.push(v) : merged.push({label, vals:[v]});
+    });
+    if(!merged.length) return '';
+    return `<div class="sec">${g.name}</div><dl class="roles">` +
+      merged.map(x => `<dt>${x.label}</dt><dd>${hl(x.vals.join('、'), q)}</dd>`).join('') + '</dl>';
+  }).join('');
+}
+function renderStaff(){
+  const q = state.q.trim();
+  const list = districts.filter(inFilter).filter(d => !q || d.raw.join('|').includes(q) || d.branch.includes(q));
+  $('#staffCount').textContent = q ? `找到 ${list.length} 個地區有「${q}」` : `共 ${list.length} 個地區`;
+  const byHq = {};
+  list.forEach(d => (byHq[d.hq] ||= []).push(d));
+  $('#staffList').innerHTML = Object.entries(byHq).map(([hq, ds]) =>
+    `<div class="hq-title">${esc(hq)}本部</div><div class="staff-grid">` +
+    ds.map(d => `<article class="card sc">
+        <div class="sc-h" data-n="${esc(d.name)}">
+          <h4>${hl(d.name,q)}<small>${esc(d.branch)}支部</small></h4>
+          <div class="when">${d.main.date?fmtDate(d.main.date):''}<br>${esc(d.main.time)} ${esc(d.main.venue)}</div>
+        </div>${rolesHTML(d,q) || '<div class="empty">尚未填寫</div>'}
+      </article>`).join('') + '</div>'
+  ).join('') || '<div class="empty">沒有符合的地區</div>';
+  $('#staffList').querySelectorAll('.sc-h').forEach(h => h.onclick = () => openDistrict(h.dataset.n));
+}
+
+/* ===== Drawer ===== */
+function openDistrict(name){
+  const d = districts.find(x => x.name===name); if(!d) return;
+  const row = (t, o) => o.date ? `<div class="${t}"><b>${TYPE_LABEL[t]}</b>${fmtDate(o.date)} ${esc(o.time)}<br>${esc(o.venue||'地點未定')}${o.note?'<br>'+esc(o.note):''}</div>` : '';
+  $('#drawerBody').innerHTML = `
+    <h2>${esc(d.name)}</h2>
+    <div class="path">${esc(d.hq)}本部 · ${esc(d.branch)}支部${d.target?` · 出席目標 ${esc(d.target)} 人`:''}</div>
+    <div class="sched">${row('main',d.main)}${row('reh',d.reh)}${row('mini',d.mini)}</div>
+    ${rolesHTML(d, state.tab==='staff' ? state.q.trim() : '')}`;
+  $('#drawer').classList.add('open'); $('#scrim').classList.add('open');
+}
+function closeDrawer(){ $('#drawer').classList.remove('open'); $('#scrim').classList.remove('open'); }
+$('#scrim').onclick = closeDrawer; $('#closeDrawer').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
+
+/* ===== Render ===== */
+function render(){
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab===state.tab));
+  $('#tab-cal').hidden = state.tab!=='cal';
+  $('#tab-staff').hidden = state.tab!=='staff';
+  $('#viewSeg').hidden = state.tab!=='cal';
+  $('#fSearch').hidden = state.tab!=='staff';
+  if(state.tab==='cal'){
+    document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view===state.view));
+    $('#monthView').hidden = state.view!=='month';
+    $('#listView').hidden = state.view!=='list';
+    state.view==='month' ? renderMonth() : renderList();
+  } else renderStaff();
+}
+
+/* ===== Events ===== */
+document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); });
+document.querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => { state.view = b.dataset.view; state._scrollList = b.dataset.view==='list'; render(); });
+$('#fHq').onchange = e => { state.hq = e.target.value; fillBranches(); render(); };
+$('#fBranch').onchange = e => { state.branch = e.target.value; render(); };
+$('#fSearch').oninput = e => { state.q = e.target.value; render(); };
+document.querySelectorAll('.legend input').forEach(c => c.onchange = () => { c.checked ? state.types.add(c.dataset.type) : state.types.delete(c.dataset.type); render(); });
+$('#prev').onclick = () => stepMonth(-1);
+$('#next').onclick = () => stepMonth(1);
+function stepMonth(n){
+  const ms = monthsWithEvents();
+  const i = ms.findIndex(x => x[0]===state.month[0] && x[1]===state.month[1]);
+  if(ms[i+n]){ state.month = ms[i+n]; state.sel = null; render(); }
+}
+
+/* ===== Boot ===== */
+function start(rows, source){
+  build(rows);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next = events.find(e => e.date >= today) || events[0];
+  const focus = next ? next.date : today;
+  state.month = [focus.getFullYear(), focus.getMonth()];
+  state.sel = key(focus);
+  renderHeader(); fillFilters(); render();
+  $('#srcDot').classList.toggle('live', source.live);
+  $('#srcText').textContent = source.text;
+}
+
+async function boot(){
+  if(CONFIG.API_URL){
+    try{
+      const res = await fetch(CONFIG.API_URL, { cache:'no-store' });
+      const data = await res.json();
+      if(!Array.isArray(data.rows)) throw new Error('bad data');
+      start(data.rows, { live:true, text:`與 Google 試算表同步 · 更新於 ${data.updated}` });
+      return;
+    }catch(err){
+      console.warn('API 讀取失敗，改用快照', err);
+      start(SNAPSHOT, { live:false, text:`無法連線到試算表，目前顯示 ${CONFIG.SNAPSHOT_DATE} 的資料` });
+      return;
+    }
+  }
+  start(SNAPSHOT, { live:false, text:`目前顯示 ${CONFIG.SNAPSHOT_DATE} 的資料（尚未連接試算表）` });
+}
+boot();
+</script>
+</body>
+</html>
