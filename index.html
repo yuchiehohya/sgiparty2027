@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#17334e">
+<meta name="theme-color" content="#dff6ee">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="地區友好總會">
 <title>2027 台中中區 地區友好總會</title>
 <style>
   :root{
-    --navy:#17334e; --navy-2:#24496b; --ink:#1d2733; --muted:#6b7684;
-    --bg:#f5f3ee; --card:#ffffff; --line:#e4e0d6;
-    --gold:#b98a2f; --gold-soft:#f6ecd6;
-    --c-main:#17334e; --c-reh:#c0702b; --c-mini:#6a8f6b;
-    --radius:14px;
+    --navy:#0e7c6b; --navy-2:#13a08a; --ink:#24323d; --muted:#6f7f8a;
+    --bg:#f4fbf8; --card:#ffffff; --line:#e3efea;
+    --gold:#ff8a5c; --gold-soft:#fff1e6;
+    --mint:#16b39a; --mint-soft:#e3f7f1; --coral:#ff7a59; --sun:#ffc94a; --sky:#47a9e6; --lav:#9b8cf2;
+    --c-main:#16b39a; --c-reh:#ff7a59; --c-mini:#47a9e6;
+    --radius:18px; --shadow:0 2px 4px rgba(16,80,66,.04),0 8px 24px rgba(16,80,66,.07);
   }
   *{box-sizing:border-box}
   html,body{margin:0}
@@ -194,7 +195,7 @@
   .tbox input{width:54px!important;min-height:38px!important;padding:6px 4px!important;text-align:center}
   .tbox .u{font-size:13px;color:var(--muted)}
   .it textarea{width:100%;resize:vertical;min-height:42px}
-  .diff.ok{color:#3f9b5a} .diff.over{color:#c0702b} .diff.under{color:#3f7fb5}
+  .diff.ok{color:#0e9c84} .diff.over{color:#e0623e} .diff.under{color:#2f8fcf}
   .other{margin:12px 0 10px}
   .other textarea{min-height:96px}
   .submitbar{
@@ -216,6 +217,101 @@
   .pick{padding:36px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
   .pick b{font-size:16px;color:var(--navy)}
   .pick span{font-size:13px;color:var(--muted)}
+
+  /* =================================================================
+     活潑清新主題
+     ================================================================= */
+  body{background:
+    radial-gradient(900px 400px at 100% 0%, #e9f6ff 0%, transparent 60%),
+    radial-gradient(700px 380px at 0% 10%, #fff4e8 0%, transparent 55%),
+    var(--bg)}
+  header{
+    position:relative;overflow:hidden;color:var(--ink);
+    background:linear-gradient(135deg,#d6f5ea 0%,#e6f4ff 55%,#fff1e4 100%);
+    padding-bottom:16px;
+  }
+  header::before,header::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+  header::before{width:220px;height:220px;right:-60px;top:-80px;background:radial-gradient(circle,#ffd66b 0%,rgba(255,214,107,0) 70%);opacity:.75}
+  header::after{width:160px;height:160px;left:-50px;bottom:-70px;background:radial-gradient(circle,#8fe3cf 0%,rgba(143,227,207,0) 70%);opacity:.8}
+  header .wrap{position:relative;z-index:1}
+  .eyebrow{opacity:1;color:var(--navy);font-weight:700;letter-spacing:.14em;display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.7);padding:4px 10px;border-radius:20px}
+  .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--coral)}
+  h1{font-size:30px;color:#12493f;margin-top:10px;letter-spacing:.08em}
+  .sub{opacity:1;color:#4a6a63}
+  .stat{background:#fff;box-shadow:var(--shadow);border-radius:16px;padding:9px 14px;color:var(--muted);position:relative;padding-left:18px}
+  .stat::before{content:"";position:absolute;left:8px;top:12px;bottom:12px;width:4px;border-radius:4px;background:var(--mint)}
+  .stat:nth-child(2)::before{background:var(--coral)} .stat:nth-child(3)::before{background:var(--sun)}
+  .stat b{color:var(--ink);font-size:20px}
+  nav.tabs{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);border-radius:999px;padding:5px;gap:4px;box-shadow:var(--shadow);max-width:520px}
+  nav.tabs button{color:var(--muted);opacity:1;border:0;border-radius:999px;padding:10px 8px;max-width:none;transition:background .2s,color .2s}
+  nav.tabs button.on{background:var(--mint);color:#fff;box-shadow:0 4px 12px rgba(22,179,154,.35)}
+
+  .card{border:0;box-shadow:var(--shadow)}
+  .filters select,.filters input{border:0;box-shadow:var(--shadow);border-radius:14px}
+  .seg{border:0;box-shadow:var(--shadow);border-radius:14px}
+  .seg button{border-radius:11px}
+  .seg button.on{background:var(--mint)}
+  .legend input{accent-color:var(--mint)}
+  .legend span::before{border-radius:50%}
+
+  .cal-head h2{color:#12493f}
+  .cal-head button{border:0;background:var(--mint-soft);color:var(--navy);border-radius:12px}
+  .grid{border-top-color:var(--line)}
+  .dow{font-weight:700}
+  .dow.we{color:var(--coral)}
+  .day.today .n{background:var(--sun);color:#5a4100}
+  .day.sel{background:var(--mint-soft)}
+  .day:hover:not(.out){background:#f7fcfa}
+  .day.out{background:#f8fbfa;color:#c9d3cf}
+  .day.sel:hover{background:var(--mint-soft)}
+  .chip{border-radius:999px;padding:1px 7px;font-weight:600}
+  .ev{border:0;box-shadow:var(--shadow);border-radius:16px;transition:transform .15s}
+  .ev:hover{transform:translateY(-1px)}
+  .ev .time{color:#12493f}
+  .tag.main{background:var(--mint-soft);color:#0e7c6b} .tag.reh{background:#ffece5;color:#d4532f} .tag.mini{background:#e4f3fc;color:#2479ad}
+  .agenda h3{color:#12493f}
+
+  .hq-title{color:var(--coral);display:flex;align-items:center;gap:8px}
+  .hq-title::after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,#ffd9c9,transparent)}
+  .sc{border-top:5px solid var(--mint)}
+  .staff-grid .sc:nth-child(3n+2){border-top-color:var(--sky)}
+  .staff-grid .sc:nth-child(3n+3){border-top-color:var(--sun)}
+  .sc-h h4{color:#12493f}
+  .sec{color:var(--mint);letter-spacing:.1em}
+  dl.roles dt,dl.roles dd{border-top-color:#edf3f0}
+  mark{background:#ffe27a}
+  .pick{background:linear-gradient(135deg,#ffffff,#f0fbf7)}
+  .pick b{color:#12493f}
+  .pick::before{content:"👋";font-size:30px}
+
+  .drawer h2{color:#12493f}
+  .sched div{border:0;background:#f6faf8}
+  .sched .main{background:var(--mint-soft)} .sched .reh{background:#fff0ea} .sched .mini{background:#eaf5fd}
+  .sched .main b{color:#0e7c6b} .sched .reh b{color:#d4532f} .sched .mini b{color:#2479ad}
+
+  .pbar{background:#eaf3ef;height:8px}
+  .pbar i{background:linear-gradient(90deg,var(--mint),#7ad8a8)}
+  .dchip{background:#f1f5f3}
+  .dchip.done{background:var(--mint-soft);color:#0e7c6b}
+  .rv-form h2{color:#12493f}
+  .it-h .no{background:var(--mint)}
+  .it:nth-child(3n) .it-h .no{background:var(--sky)}
+  .it:nth-child(3n+1) .it-h .no{background:var(--coral)}
+  .it .it-h .no.pre{background:#e7ecea;color:var(--muted)}
+  .tbox{background:#f6fbf9;border-color:#e3efea}
+  .tbox .tl{color:#0e7c6b}
+  .field input,.field select,.rv-form textarea,.it input,.it textarea{border-color:#dfebe6;border-radius:12px}
+  .field input:focus,.field select:focus,.rv-form textarea:focus,.it input:focus,.it textarea:focus{outline:2px solid #9fe3d4;border-color:#9fe3d4}
+  .loadbar{background:#fff4d6}
+  .loadbar button{background:var(--mint)}
+  .submitbar{background:rgba(244,251,248,.94)}
+  .total b{color:#12493f}
+  .submitbar button{background:linear-gradient(135deg,var(--coral),#ff9f6b);border-radius:999px;box-shadow:0 6px 16px rgba(255,122,89,.35);padding:12px 28px}
+  .toast{border-radius:999px;background:#12493f}
+  .close{background:var(--mint-soft);color:var(--navy)}
+  .dot.live{background:var(--mint);box-shadow:0 0 0 3px rgba(22,179,154,.2)}
+  @media (max-width:600px){ h1{font-size:25px} nav.tabs button{font-size:14px} }
   [hidden]{display:none!important}
 </style>
 </head>
@@ -279,7 +375,7 @@
     <div class="card rv-progress" id="rvProgress"></div>
     <form class="card rv-form" id="rvForm" autocomplete="off" novalidate>
       <h2>台中中區 地區總會彩排檢討表</h2>
-      <p class="hint">請各地區在總會彩排結束後填寫送出。同一地區再次送出，會覆蓋上一份。</p>
+      <p class="hint">請各地區女子部在總會彩排結束後填寫送出。同一地區再次送出，會覆蓋上一份。</p>
       <div class="fields">
         <label class="field req"><span>地區</span><select id="rvDistrict"></select></label>
         <label class="field"><span>彩排日期</span><input id="rvDate" type="date"></label>
@@ -683,7 +779,7 @@ function updateTotal(){
   });
   const d = actual - plan * 60;
   $('#rvTotal').innerHTML = filled
-    ? `實際合計 <b>${fmtSec(actual)}</b><br>預計 ${plan} 分 · <span class="d" style="color:${d>0?'#c0702b':d<0?'#3f7fb5':'#3f9b5a'}">${d>0?'超過 '+fmtSec(d):d<0?'少 '+fmtSec(-d):'剛好'}</span>`
+    ? `實際合計 <b>${fmtSec(actual)}</b><br>預計 ${plan} 分 · <span class="d" style="color:${d>0?'#e0623e':d<0?'#2f8fcf':'#0e9c84'}">${d>0?'超過 '+fmtSec(d):d<0?'少 '+fmtSec(-d):'剛好'}</span>`
     : `預計合計 <b>${plan}</b> 分<br>填入時間後自動加總`;
 }
 function autoGrow(t){ t.style.height = 'auto'; t.style.height = Math.max(42, t.scrollHeight + 2) + 'px'; }
