@@ -174,10 +174,10 @@
   .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
   .field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
   .field.req > span::after{content:" *";color:#c0392b}
-  .field input,.field select,.rv-form textarea,.it input{
+  .field input,.field select,.rv-form textarea,.it input,.it textarea{
     border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;background:#fff;color:var(--ink);font-size:15px;width:100%;
   }
-  .field input:focus,.field select:focus,.rv-form textarea:focus,.it input:focus{outline:2px solid #a9bfd4;border-color:#a9bfd4}
+  .field input:focus,.field select:focus,.rv-form textarea:focus,.it input:focus,.it textarea:focus{outline:2px solid #a9bfd4;border-color:#a9bfd4}
   .loadbar{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--gold-soft);border-radius:10px;padding:9px 12px;font-size:13px;margin:8px 0}
   .loadbar.show{display:flex}
   .loadbar button{border:0;background:var(--navy);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;white-space:nowrap}
@@ -187,15 +187,14 @@
   .it-h .no{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
   .it-h .no.pre{background:#d7d3c9;color:var(--ink);font-size:10px;width:auto;padding:0 8px;border-radius:13px}
   .it-h b{font-size:15px}
-  .it-h .plan{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
-  .it-b{display:grid;grid-template-columns:120px 1fr;gap:8px}
-  .act{position:relative}
-  .act input{padding-right:30px;text-align:center}
-  .act::after{content:"分";position:absolute;right:11px;top:11px;font-size:13px;color:var(--muted)}
-  .plan .diff:not(:empty){margin-left:6px;font-weight:700}
-  .diff.over{color:#c0702b} .diff.under{color:#3f7fb5}
-  .it-b .sub{grid-column:2}
-  .it-b textarea{grid-column:1 / -1;resize:vertical;min-height:42px}
+  .it-h .plan{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+  .times{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:8px}
+  .tbox{display:flex;align-items:center;gap:6px;background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+  .tbox .tl{font-size:13px;font-weight:700;color:var(--navy);min-width:30px}
+  .tbox input{width:54px!important;min-height:38px!important;padding:6px 4px!important;text-align:center}
+  .tbox .u{font-size:13px;color:var(--muted)}
+  .it textarea{width:100%;resize:vertical;min-height:42px}
+  .diff.ok{color:#3f9b5a} .diff.over{color:#c0702b} .diff.under{color:#3f7fb5}
   .other{margin:12px 0 10px}
   .other textarea{min-height:96px}
   .submitbar{
@@ -213,7 +212,6 @@
   .toast.err{background:#a93a2b}
   @media (max-width:600px){
     .fields{grid-template-columns:1fr}
-    .it-b{grid-template-columns:104px 1fr}
   }
   .pick{padding:36px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
   .pick b{font-size:16px;color:var(--navy)}
@@ -286,7 +284,6 @@
         <label class="field req"><span>地區</span><select id="rvDistrict"></select></label>
         <label class="field"><span>彩排日期</span><input id="rvDate" type="date"></label>
         <label class="field req"><span>填寫人</span><input id="rvFiller" placeholder="姓名"></label>
-        <label class="field req"><span>通關碼</span><input id="rvPass" type="password" placeholder="請向區負責人索取"></label>
       </div>
       <div class="loadbar" id="loadbar"><span id="loadText"></span><button type="button" id="loadBtn">載入上次內容</button></div>
       <div class="items" id="rvItems"></div>
@@ -349,13 +346,13 @@ const ROLE_GROUPS = [
   { name:'場務', roles:[[25,'場控'],[26,'催場'],[24,'剪影 PPT'],[27,'青年部音控'],[28,'金城會音效'],[29,'攝影']] },
   { name:'服務', roles:[[20,'服務負責人'],[33,'前輩引導'],[34,'台上引導'],[35,'台下引導'],[36,'遞獎者'],[37,'端獎者'],[30,'創價班負責人'],[31,'創價班'],[32,'創價班']] }
 ];
-/* 彩排檢討項目：[序, 項目, 預計(分), 補充欄位, 是否計入合計]
+/* 彩排檢討項目：[序, 項目, 預計(分), 是否記錄串場時間, 是否計入合計, 是否記錄時間(預設是)]
    連上試算表後會改用 Code.gs 裡的 REVIEW_ITEMS */
 const DEFAULT_REVIEW_ITEMS = [
-  ['','地區活動剪影',30,'',false],['1','題目三唱',1,'注意事項說明',true],['2','司儀開場',1,'',true],
-  ['3','未來部表演',5,'',true],['4','致歡迎詞',5,'串場',true],['5','頒贈禮物',5,'串場',true],
-  ['6','年度影片',10,'串場',true],['7','地區聚光燈',5,'串場',true],['8','幸福1+1體驗',15,'串場',true],
-  ['9','總結',7,'串場',true],['10','題目三唱',1,'串場',true],['11','大合照',5,'串場',true]
+  ['','地區活動剪影',30,false,false,false],['1','題目三唱',1,true,true],['2','司儀開場',1,false,true],
+  ['3','未來部表演',5,false,true],['4','致歡迎詞',5,true,true],['5','頒贈禮物',5,true,true],
+  ['6','年度影片',10,true,true],['7','地區聚光燈',5,true,true],['8','幸福1+1體驗',15,true,true],
+  ['9','總結',7,true,true],['10','題目三唱',1,true,true],['11','大合照',5,true,true]
 ];
 const TYPE_LABEL = { main:'正式場次', reh:'彩排', mini:'沙推／小彩排' };
 const WD = ['日','一','二','三','四','五','六'];
@@ -591,19 +588,18 @@ function setupReview(){
   $('#rvDistrict').innerHTML = '<option value="">請選擇地區</option>' + Object.entries(groups).map(([g,ds]) =>
     `<optgroup label="${esc(g)}">${ds.map(d => `<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('');
   // 項目
+  const timeBox = (f, label, name) => `<div class="tbox"><span class="tl">${label}</span>
+      <input type="number" inputmode="numeric" min="0" step="1" data-f="${f}m" aria-label="${esc(name)} ${label} 分"><span class="u">分</span>
+      <input type="number" inputmode="numeric" min="0" max="59" step="1" data-f="${f}s" aria-label="${esc(name)} ${label} 秒"><span class="u">秒</span></div>`;
   $('#rvItems').innerHTML = reviewItems.map((it,i) => {
-    const [no,name,plan,sub,count] = it;
+    const [no,name,plan,cue,count] = it, timed = it[5] !== false;
     return `<div class="it" data-i="${i}">
       <div class="it-h"><span class="no ${no?'':'pre'}">${no?esc(no):'開場前'}</span><b>${esc(name)}</b>
-        <span class="plan">預計 ${plan} 分${count?'':'（不計入合計）'}<span class="diff"></span></span></div>
-      <div class="it-b">
-        <label class="act"><input type="number" inputmode="decimal" min="0" step="0.5" data-f="actual" aria-label="${esc(name)} 實際時間"></label>
-        ${sub ? `<input class="sub" data-f="sub" placeholder="${esc(sub)}">` : '<span></span>'}
-        <textarea rows="1" data-f="note" placeholder="檢討建議"></textarea>
-      </div></div>`;
+        <span class="plan">預計 ${plan} 分${timed?'':'・不需記錄時間'}<span class="diff"></span></span></div>
+      ${timed ? `<div class="times">${cue ? timeBox('cue','串場',name) + timeBox('prog','程序',name) : timeBox('prog','實際',name)}</div>` : ''}
+      <textarea rows="1" data-f="note" placeholder="檢討建議"></textarea></div>`;
   }).join('');
   const saved = store.get('rvMeta') || {};
-  $('#rvPass').value = saved.pass || '';
   $('#rvFiller').value = saved.filler || '';
   rvReady = true;
   updateTotal();
@@ -624,10 +620,28 @@ function renderProgress(){
   });
 }
 
+/* 分、秒欄位 ↔ 秒數 */
+function getSec(el, f){
+  const m = el.querySelector(`[data-f=${f}m]`), s = el.querySelector(`[data-f=${f}s]`);
+  if(!m) return '';
+  if(m.value === '' && s.value === '') return '';
+  return Math.max(0, Math.round((+m.value || 0) * 60 + (+s.value || 0)));
+}
+function setSec(el, f, v){
+  const m = el.querySelector(`[data-f=${f}m]`), s = el.querySelector(`[data-f=${f}s]`);
+  if(!m) return;
+  if(v === '' || v == null || isNaN(+v)){ m.value = ''; s.value = ''; return; }
+  m.value = Math.floor(+v / 60); s.value = +v % 60;
+}
+function fmtSec(t){
+  const m = Math.floor(t / 60), r = t % 60;
+  if(!m) return r + '秒';
+  return r ? `${m}分${r}秒` : `${m}分`;
+}
+
 function collect(){
   const items = [...document.querySelectorAll('#rvItems .it')].map(el => ({
-    actual: el.querySelector('[data-f=actual]').value,
-    sub: el.querySelector('[data-f=sub]')?.value || '',
+    cue: getSec(el, 'cue'), prog: getSec(el, 'prog'),
     note: el.querySelector('[data-f=note]').value
   }));
   const d = districts.find(x => x.name === $('#rvDistrict').value);
@@ -641,8 +655,8 @@ function fill(data){
   const els = document.querySelectorAll('#rvItems .it');
   els.forEach((el,i) => {
     const v = (data.items || [])[i] || {};
-    el.querySelector('[data-f=actual]').value = v.actual ?? '';
-    const sub = el.querySelector('[data-f=sub]'); if(sub) sub.value = v.sub ?? '';
+    setSec(el, 'cue', v.cue ?? '');
+    setSec(el, 'prog', v.prog ?? '');
     el.querySelector('[data-f=note]').value = v.note ?? '';
   });
   $('#rvOther').value = data.other ?? '';
@@ -657,20 +671,20 @@ function updateTotal(){
   let actual = 0, plan = 0, filled = 0;
   document.querySelectorAll('#rvItems .it').forEach((el,i) => {
     const [, , p, , count] = reviewItems[i];
-    const v = el.querySelector('[data-f=actual]').value;
+    const c = getSec(el, 'cue'), g = getSec(el, 'prog');
     const diff = el.querySelector('.diff');
-    if(v !== ''){
-      const dv = Math.round((+v - p) * 10) / 10;
-      diff.textContent = dv > 0 ? `· 超過 ${dv} 分` : dv < 0 ? `· 少 ${-dv} 分` : '';
-      diff.className = 'diff ' + (dv > 0 ? 'over' : dv < 0 ? 'under' : '');
+    if(c !== '' || g !== ''){
+      const t = (c || 0) + (g || 0), dv = t - p * 60;
+      diff.textContent = `・小計 ${fmtSec(t)}` + (dv > 0 ? `（超過 ${fmtSec(dv)}）` : dv < 0 ? `（少 ${fmtSec(-dv)}）` : '');
+      diff.className = 'diff ' + (dv > 0 ? 'over' : dv < 0 ? 'under' : 'ok');
+      if(count){ actual += t; filled++; }
     } else diff.textContent = '';
-    if(count){ plan += p; if(v !== ''){ actual += +v; filled++; } }
+    if(count) plan += p;
   });
-  actual = Math.round(actual * 10) / 10;
-  const d = Math.round((actual - plan) * 10) / 10;
+  const d = actual - plan * 60;
   $('#rvTotal').innerHTML = filled
-    ? `實際合計 <b>${actual}</b> 分<br>預計 ${plan} 分 · <span class="d" style="color:${d>0?'#c0702b':d<0?'#3f7fb5':'#3f9b5a'}">${d>0?'超過 '+d:d<0?'少 '+(-d):'剛好'}${d?' 分':''}</span>`
-    : `預計合計 <b>${plan}</b> 分<br>填入實際時間後自動加總`;
+    ? `實際合計 <b>${fmtSec(actual)}</b><br>預計 ${plan} 分 · <span class="d" style="color:${d>0?'#c0702b':d<0?'#3f7fb5':'#3f9b5a'}">${d>0?'超過 '+fmtSec(d):d<0?'少 '+fmtSec(-d):'剛好'}</span>`
+    : `預計合計 <b>${plan}</b> 分<br>填入時間後自動加總`;
 }
 function autoGrow(t){ t.style.height = 'auto'; t.style.height = Math.max(42, t.scrollHeight + 2) + 'px'; }
 
@@ -692,8 +706,7 @@ function onDistrictChange(){
 }
 
 async function loadExisting(){
-  const name = $('#rvDistrict').value, pass = $('#rvPass').value.trim();
-  if(!pass){ toast('請先輸入通關碼', true); $('#rvPass').focus(); return; }
+  const name = $('#rvDistrict').value, pass = '';
   $('#loadBtn').disabled = true;
   try{
     const r = await api({ action:'load', pass, district:name });
@@ -707,16 +720,15 @@ async function loadExisting(){
 
 async function submitReview(ev){
   ev.preventDefault();
-  const data = collect(), pass = $('#rvPass').value.trim();
+  const data = collect(), pass = '';
   if(!data.district){ toast('請選擇地區', true); $('#rvDistrict').focus(); return; }
   if(!data.filler){ toast('請填寫填寫人', true); $('#rvFiller').focus(); return; }
-  if(!pass){ toast('請輸入通關碼', true); $('#rvPass').focus(); return; }
   if(!CONFIG.API_URL){ toast('網站尚未連接試算表，暫時無法送出', true); return; }
   const btn = $('#rvSubmit'); btn.disabled = true; btn.textContent = '送出中…';
   try{
     const r = await api({ action:'submit', pass, data });
     if(!r.ok) throw new Error(r.error);
-    store.set('rvMeta', { pass, filler:data.filler });
+    store.set('rvMeta', { filler:data.filler });
     store.del('rvDraft:' + data.district);
     const i = reviews.findIndex(x => x.district === data.district);
     i >= 0 ? reviews[i].updated = r.updated : reviews.push({ district:data.district, updated:r.updated });
@@ -730,11 +742,22 @@ async function submitReview(ev){
 }
 
 $('#rvDistrict').onchange = onDistrictChange;
+$('#rvForm').addEventListener('change', e => {
+  const f = e.target.dataset.f || '';
+  if(!/^(cue|prog)[ms]$/.test(f) || e.target.value === '') return;
+  let v = Math.max(0, Math.floor(+e.target.value || 0));
+  // 秒數超過 59 時，自動進位到分
+  if(f.endsWith('s') && v > 59){
+    const box = e.target.closest('.tbox'), m = box.querySelector('[data-f$=m]');
+    m.value = (+m.value || 0) + Math.floor(v / 60); v = v % 60;
+  }
+  e.target.value = v; updateTotal(); saveDraft();
+});
 $('#loadBtn').onclick = loadExisting;
 $('#rvForm').addEventListener('submit', submitReview);
 $('#rvForm').addEventListener('input', e => {
   if(e.target.matches('textarea')) autoGrow(e.target);
-  if(e.target.dataset.f === 'actual') updateTotal();
+  if(/^(cue|prog)[ms]$/.test(e.target.dataset.f || '')) updateTotal();
   clearTimeout(saveDraft._t); saveDraft._t = setTimeout(saveDraft, 400);
 });
 
