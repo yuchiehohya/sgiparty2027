@@ -157,6 +157,67 @@
     .day{min-height:54px;text-align:center;align-items:center}
     dl.roles{grid-template-columns:84px 1fr}
   }
+  /* ===== Review form ===== */
+  .rv-progress{padding:14px;margin-bottom:12px}
+  .rv-progress .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .rv-progress .top b{font-size:15px;color:var(--navy)}
+  .rv-progress .top span{font-size:13px;color:var(--muted)}
+  .pbar{height:6px;background:#ece8de;border-radius:6px;overflow:hidden;margin-bottom:10px}
+  .pbar i{display:block;height:100%;background:#3f9b5a;border-radius:6px}
+  .dchips{display:flex;flex-wrap:wrap;gap:6px}
+  .dchip{font-size:12px;padding:3px 9px;border-radius:20px;background:#f1efe9;color:var(--muted);border:0;cursor:pointer}
+  .dchip.done{background:#e1f0e5;color:#2f7a46;font-weight:600}
+  .dchip.done::before{content:"✓ "}
+  .rv-form{padding:16px 14px 6px}
+  .rv-form h2{margin:0 0 4px;font-size:18px;color:var(--navy);text-align:center;letter-spacing:.04em}
+  .rv-form .hint{font-size:13px;color:var(--muted);text-align:center;margin:0 0 14px}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+  .field.req > span::after{content:" *";color:#c0392b}
+  .field input,.field select,.rv-form textarea,.it input{
+    border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;background:#fff;color:var(--ink);font-size:15px;width:100%;
+  }
+  .field input:focus,.field select:focus,.rv-form textarea:focus,.it input:focus{outline:2px solid #a9bfd4;border-color:#a9bfd4}
+  .loadbar{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--gold-soft);border-radius:10px;padding:9px 12px;font-size:13px;margin:8px 0}
+  .loadbar.show{display:flex}
+  .loadbar button{border:0;background:var(--navy);color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;white-space:nowrap}
+  .items{margin-top:10px}
+  .it{border-top:1px solid var(--line);padding:12px 0}
+  .it-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .it-h .no{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .it-h .no.pre{background:#d7d3c9;color:var(--ink);font-size:10px;width:auto;padding:0 8px;border-radius:13px}
+  .it-h b{font-size:15px}
+  .it-h .plan{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+  .it-b{display:grid;grid-template-columns:120px 1fr;gap:8px}
+  .act{position:relative}
+  .act input{padding-right:30px;text-align:center}
+  .act::after{content:"分";position:absolute;right:11px;top:11px;font-size:13px;color:var(--muted)}
+  .plan .diff:not(:empty){margin-left:6px;font-weight:700}
+  .diff.over{color:#c0702b} .diff.under{color:#3f7fb5}
+  .it-b .sub{grid-column:2}
+  .it-b textarea{grid-column:1 / -1;resize:vertical;min-height:42px}
+  .other{margin:12px 0 10px}
+  .other textarea{min-height:96px}
+  .submitbar{
+    position:sticky;bottom:0;z-index:5;margin:0 -14px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(245,243,238,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+  }
+  .total{font-size:13px;color:var(--muted);line-height:1.3}
+  .total b{font-size:20px;color:var(--navy)}
+  .total .d{font-weight:700}
+  .submitbar button{margin-left:auto;border:0;background:var(--navy);color:#fff;font-weight:700;border-radius:12px;padding:12px 22px;font-size:15px;cursor:pointer}
+  .submitbar button:disabled{opacity:.5;cursor:default}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1d2733;color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:40;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.show{opacity:1}
+  .toast.err{background:#a93a2b}
+  @media (max-width:600px){
+    .fields{grid-template-columns:1fr}
+    .it-b{grid-template-columns:104px 1fr}
+  }
+  .pick{padding:36px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
+  .pick b{font-size:16px;color:var(--navy)}
+  .pick span{font-size:13px;color:var(--muted)}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -171,6 +232,7 @@
     <nav class="tabs">
       <button class="on" data-tab="cal">行事曆</button>
       <button data-tab="staff">工作人員一覽</button>
+      <button data-tab="review">彩排檢討</button>
     </nav>
   </div>
 </header>
@@ -178,10 +240,10 @@
 <main class="wrap">
   <p class="status"><span class="dot" id="srcDot"></span><span id="srcText">資料載入中…</span></p>
 
-  <div class="filters">
+  <div class="filters" id="filters">
     <select id="fHq" aria-label="本部"><option value="">全部本部</option></select>
     <select id="fBranch" aria-label="支部"><option value="">全部支部</option></select>
-    <input id="fSearch" type="search" placeholder="搜尋地區或姓名，例如：宣瑋" hidden>
+    <input id="fSearch" type="search" placeholder="在此支部中搜尋姓名" hidden>
     <div class="seg" id="viewSeg">
       <button class="on" data-view="month">月曆</button>
       <button data-view="list">列表</button>
@@ -214,7 +276,29 @@
     <p class="count" id="staffCount"></p>
     <div id="staffList"></div>
   </section>
+  <!-- 彩排檢討 -->
+  <section id="tab-review" hidden>
+    <div class="card rv-progress" id="rvProgress"></div>
+    <form class="card rv-form" id="rvForm" autocomplete="off" novalidate>
+      <h2>台中中區 地區總會彩排檢討表</h2>
+      <p class="hint">請各地區女子部在總會彩排結束後填寫送出。同一地區再次送出，會覆蓋上一份。</p>
+      <div class="fields">
+        <label class="field req"><span>地區</span><select id="rvDistrict"></select></label>
+        <label class="field"><span>彩排日期</span><input id="rvDate" type="date"></label>
+        <label class="field req"><span>填寫人</span><input id="rvFiller" placeholder="姓名"></label>
+        <label class="field req"><span>通關碼</span><input id="rvPass" type="password" placeholder="請向區負責人索取"></label>
+      </div>
+      <div class="loadbar" id="loadbar"><span id="loadText"></span><button type="button" id="loadBtn">載入上次內容</button></div>
+      <div class="items" id="rvItems"></div>
+      <label class="field other"><span>其他檢討建議事項</span><textarea id="rvOther" placeholder="場地、動線、器材、時間掌控……"></textarea></label>
+      <div class="submitbar">
+        <div class="total" id="rvTotal"></div>
+        <button type="submit" id="rvSubmit">送出</button>
+      </div>
+    </form>
+  </section>
 </main>
+<div class="toast" id="toast"></div>
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-modal="true" role="dialog">
@@ -228,7 +312,7 @@
    設定：部署 Apps Script 後，把網址貼在 API_URL
    ================================================================ */
 const CONFIG = {
-  API_URL: '',          // 例如 'https://script.google.com/macros/s/xxxxxx/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbx62-NK9vsRzDgKSLuaK732QAd0F4GheBsb5xfFpfyUeFRICW5XJklXHjxERMUd6QLz/exec',          // 例如 'https://script.google.com/macros/s/xxxxxx/exec'
   YEAR: 2026,           // 場次日期所在的年份（表上只有月/日）
   SNAPSHOT_DATE: '2026/11/23'
 };
@@ -265,12 +349,23 @@ const ROLE_GROUPS = [
   { name:'場務', roles:[[25,'場控'],[26,'催場'],[24,'剪影 PPT'],[27,'青年部音控'],[28,'金城會音效'],[29,'攝影']] },
   { name:'服務', roles:[[20,'服務負責人'],[33,'前輩引導'],[34,'台上引導'],[35,'台下引導'],[36,'遞獎者'],[37,'端獎者'],[30,'創價班負責人'],[31,'創價班'],[32,'創價班']] }
 ];
+/* 彩排檢討項目：[序, 項目, 預計(分), 補充欄位, 是否計入合計]
+   連上試算表後會改用 Code.gs 裡的 REVIEW_ITEMS */
+const DEFAULT_REVIEW_ITEMS = [
+  ['','地區活動剪影',30,'',false],['1','題目三唱',1,'注意事項說明',true],['2','司儀開場',1,'',true],
+  ['3','未來部表演',5,'',true],['4','致歡迎詞',5,'串場',true],['5','頒贈禮物',5,'串場',true],
+  ['6','年度影片',10,'串場',true],['7','地區聚光燈',5,'串場',true],['8','幸福1+1體驗',15,'串場',true],
+  ['9','總結',7,'串場',true],['10','題目三唱',1,'串場',true],['11','大合照',5,'串場',true]
+];
 const TYPE_LABEL = { main:'正式場次', reh:'彩排', mini:'沙推／小彩排' };
 const WD = ['日','一','二','三','四','五','六'];
 
 /* ===== State ===== */
 let districts = [];
 let events = [];
+let reviewItems = DEFAULT_REVIEW_ITEMS;
+let reviews = [];      // [{district, updated}]
+let apiLive = false;
 const state = { tab:'cal', view:'month', hq:'', branch:'', q:'', types:new Set(['main','reh','mini']), month:null, sel:null };
 
 /* ===== Helpers ===== */
@@ -430,6 +525,14 @@ function rolesHTML(d, q){
   }).join('');
 }
 function renderStaff(){
+  if(!state.hq || !state.branch){
+    $('#fSearch').hidden = true;
+    $('#staffCount').textContent = '';
+    $('#staffList').innerHTML = `<div class="card pick"><b>請先選擇本部和支部</b>
+      <span>${!state.hq ? '先在上方選擇「本部」，再選擇「支部」' : `已選 ${esc(state.hq)}本部，請再選擇「支部」`}</span></div>`;
+    return;
+  }
+  $('#fSearch').hidden = false;
   const q = state.q.trim();
   const list = districts.filter(inFilter).filter(d => !q || d.raw.join('|').includes(q) || d.branch.includes(q));
   $('#staffCount').textContent = q ? `找到 ${list.length} 個地區有「${q}」` : `共 ${list.length} 個地區`;
@@ -462,11 +565,186 @@ function closeDrawer(){ $('#drawer').classList.remove('open'); $('#scrim').class
 $('#scrim').onclick = closeDrawer; $('#closeDrawer').onclick = closeDrawer;
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
 
+
+/* ===== Storage（瀏覽器暫存：通關碼、草稿）===== */
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+function toast(msg, err){
+  const t = $('#toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+async function api(body){
+  const res = await fetch(CONFIG.API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body) });
+  return res.json();
+}
+const isoDate = d => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` : '';
+
+/* ===== 彩排檢討 ===== */
+let rvReady = false;
+function setupReview(){
+  // 地區選單（依支部分組）
+  const groups = {};
+  districts.forEach(d => (groups[d.hq+'本部 · '+d.branch+'支部'] ||= []).push(d));
+  $('#rvDistrict').innerHTML = '<option value="">請選擇地區</option>' + Object.entries(groups).map(([g,ds]) =>
+    `<optgroup label="${esc(g)}">${ds.map(d => `<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('');
+  // 項目
+  $('#rvItems').innerHTML = reviewItems.map((it,i) => {
+    const [no,name,plan,sub,count] = it;
+    return `<div class="it" data-i="${i}">
+      <div class="it-h"><span class="no ${no?'':'pre'}">${no?esc(no):'開場前'}</span><b>${esc(name)}</b>
+        <span class="plan">預計 ${plan} 分${count?'':'（不計入合計）'}<span class="diff"></span></span></div>
+      <div class="it-b">
+        <label class="act"><input type="number" inputmode="decimal" min="0" step="0.5" data-f="actual" aria-label="${esc(name)} 實際時間"></label>
+        ${sub ? `<input class="sub" data-f="sub" placeholder="${esc(sub)}">` : '<span></span>'}
+        <textarea rows="1" data-f="note" placeholder="檢討建議"></textarea>
+      </div></div>`;
+  }).join('');
+  const saved = store.get('rvMeta') || {};
+  $('#rvPass').value = saved.pass || '';
+  $('#rvFiller').value = saved.filler || '';
+  rvReady = true;
+  updateTotal();
+}
+
+function renderProgress(){
+  const done = new Map(reviews.map(r => [r.district, r.updated]));
+  const n = districts.filter(d => done.has(d.name)).length;
+  const pct = districts.length ? Math.round(n / districts.length * 100) : 0;
+  $('#rvProgress').innerHTML = `
+    <div class="top"><b>檢討表回傳進度</b><span>${apiLive ? `${n} / ${districts.length} 個地區` : '連接試算表後顯示'}</span></div>
+    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="dchips">${districts.map(d => `<button type="button" class="dchip ${done.has(d.name)?'done':''}" data-n="${esc(d.name)}"
+      title="${done.has(d.name)?'已回傳 '+esc(done.get(d.name)):'尚未回傳'}">${esc(d.name)}</button>`).join('')}</div>`;
+  $('#rvProgress').querySelectorAll('.dchip').forEach(b => b.onclick = () => {
+    $('#rvDistrict').value = b.dataset.n; onDistrictChange();
+    $('#rvForm').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+function collect(){
+  const items = [...document.querySelectorAll('#rvItems .it')].map(el => ({
+    actual: el.querySelector('[data-f=actual]').value,
+    sub: el.querySelector('[data-f=sub]')?.value || '',
+    note: el.querySelector('[data-f=note]').value
+  }));
+  const d = districts.find(x => x.name === $('#rvDistrict').value);
+  return {
+    district: $('#rvDistrict').value, hq: d?.hq || '', branch: d?.branch || '',
+    date: $('#rvDate').value.replace(/-/g,'/'), filler: $('#rvFiller').value.trim(),
+    items, other: $('#rvOther').value
+  };
+}
+function fill(data){
+  const els = document.querySelectorAll('#rvItems .it');
+  els.forEach((el,i) => {
+    const v = (data.items || [])[i] || {};
+    el.querySelector('[data-f=actual]').value = v.actual ?? '';
+    const sub = el.querySelector('[data-f=sub]'); if(sub) sub.value = v.sub ?? '';
+    el.querySelector('[data-f=note]').value = v.note ?? '';
+  });
+  $('#rvOther').value = data.other ?? '';
+  if(data.date) $('#rvDate').value = String(data.date).replace(/\//g,'-');
+  if(data.filler && !$('#rvFiller').value) $('#rvFiller').value = data.filler;
+  document.querySelectorAll('#rvForm textarea').forEach(autoGrow);
+  updateTotal();
+}
+function clearItems(){ fill({ items:[], other:'' }); }
+
+function updateTotal(){
+  let actual = 0, plan = 0, filled = 0;
+  document.querySelectorAll('#rvItems .it').forEach((el,i) => {
+    const [, , p, , count] = reviewItems[i];
+    const v = el.querySelector('[data-f=actual]').value;
+    const diff = el.querySelector('.diff');
+    if(v !== ''){
+      const dv = Math.round((+v - p) * 10) / 10;
+      diff.textContent = dv > 0 ? `· 超過 ${dv} 分` : dv < 0 ? `· 少 ${-dv} 分` : '';
+      diff.className = 'diff ' + (dv > 0 ? 'over' : dv < 0 ? 'under' : '');
+    } else diff.textContent = '';
+    if(count){ plan += p; if(v !== ''){ actual += +v; filled++; } }
+  });
+  actual = Math.round(actual * 10) / 10;
+  const d = Math.round((actual - plan) * 10) / 10;
+  $('#rvTotal').innerHTML = filled
+    ? `實際合計 <b>${actual}</b> 分<br>預計 ${plan} 分 · <span class="d" style="color:${d>0?'#c0702b':d<0?'#3f7fb5':'#3f9b5a'}">${d>0?'超過 '+d:d<0?'少 '+(-d):'剛好'}${d?' 分':''}</span>`
+    : `預計合計 <b>${plan}</b> 分<br>填入實際時間後自動加總`;
+}
+function autoGrow(t){ t.style.height = 'auto'; t.style.height = Math.max(42, t.scrollHeight + 2) + 'px'; }
+
+function saveDraft(){
+  const d = $('#rvDistrict').value; if(!d) return;
+  store.set('rvDraft:' + d, collect());
+}
+
+function onDistrictChange(){
+  const name = $('#rvDistrict').value;
+  const d = districts.find(x => x.name === name);
+  $('#rvDate').value = d ? isoDate(d.reh.date) : '';
+  clearItems();
+  const draft = name && store.get('rvDraft:' + name);
+  if(draft) fill(draft);
+  const done = reviews.find(r => r.district === name);
+  $('#loadbar').classList.toggle('show', !!done);
+  if(done) $('#loadText').textContent = `${name} 已於 ${done.updated} 回傳過${draft ? '（目前顯示的是這台裝置上的草稿）' : ''}`;
+}
+
+async function loadExisting(){
+  const name = $('#rvDistrict').value, pass = $('#rvPass').value.trim();
+  if(!pass){ toast('請先輸入通關碼', true); $('#rvPass').focus(); return; }
+  $('#loadBtn').disabled = true;
+  try{
+    const r = await api({ action:'load', pass, district:name });
+    if(!r.ok) throw new Error(r.error);
+    if(!r.data){ toast('試算表裡找不到這個地區的資料', true); return; }
+    fill(r.data); saveDraft();
+    toast('已載入上次送出的內容');
+  }catch(e){ toast(e.message || '載入失敗，請稍後再試', true); }
+  finally{ $('#loadBtn').disabled = false; }
+}
+
+async function submitReview(ev){
+  ev.preventDefault();
+  const data = collect(), pass = $('#rvPass').value.trim();
+  if(!data.district){ toast('請選擇地區', true); $('#rvDistrict').focus(); return; }
+  if(!data.filler){ toast('請填寫填寫人', true); $('#rvFiller').focus(); return; }
+  if(!pass){ toast('請輸入通關碼', true); $('#rvPass').focus(); return; }
+  if(!CONFIG.API_URL){ toast('網站尚未連接試算表，暫時無法送出', true); return; }
+  const btn = $('#rvSubmit'); btn.disabled = true; btn.textContent = '送出中…';
+  try{
+    const r = await api({ action:'submit', pass, data });
+    if(!r.ok) throw new Error(r.error);
+    store.set('rvMeta', { pass, filler:data.filler });
+    store.del('rvDraft:' + data.district);
+    const i = reviews.findIndex(x => x.district === data.district);
+    i >= 0 ? reviews[i].updated = r.updated : reviews.push({ district:data.district, updated:r.updated });
+    renderProgress();
+    $('#loadbar').classList.add('show');
+    $('#loadText').textContent = `${data.district} 已於 ${r.updated} 回傳過`;
+    toast(r.overwritten ? `已更新 ${data.district} 的檢討表` : `已送出 ${data.district} 的檢討表，謝謝！`);
+  }catch(e){
+    toast(e.message === 'Failed to fetch' ? '網路連線失敗，內容已暫存在這台裝置，請稍後再送一次' : (e.message || '送出失敗'), true);
+  }finally{ btn.disabled = false; btn.textContent = '送出'; }
+}
+
+$('#rvDistrict').onchange = onDistrictChange;
+$('#loadBtn').onclick = loadExisting;
+$('#rvForm').addEventListener('submit', submitReview);
+$('#rvForm').addEventListener('input', e => {
+  if(e.target.matches('textarea')) autoGrow(e.target);
+  if(e.target.dataset.f === 'actual') updateTotal();
+  clearTimeout(saveDraft._t); saveDraft._t = setTimeout(saveDraft, 400);
+});
+
 /* ===== Render ===== */
 function render(){
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab===state.tab));
   $('#tab-cal').hidden = state.tab!=='cal';
   $('#tab-staff').hidden = state.tab!=='staff';
+  $('#tab-review').hidden = state.tab!=='review';
+  $('#filters').hidden = state.tab==='review';
   $('#viewSeg').hidden = state.tab!=='cal';
   $('#fSearch').hidden = state.tab!=='staff';
   if(state.tab==='cal'){
@@ -474,14 +752,21 @@ function render(){
     $('#monthView').hidden = state.view!=='month';
     $('#listView').hidden = state.view!=='list';
     state.view==='month' ? renderMonth() : renderList();
-  } else renderStaff();
+  } else if(state.tab==='staff') renderStaff();
+  else { if(!rvReady) setupReview(); renderProgress(); }
 }
 
 /* ===== Events ===== */
 document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; render(); });
 document.querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => { state.view = b.dataset.view; state._scrollList = b.dataset.view==='list'; render(); });
 $('#fHq').onchange = e => { state.hq = e.target.value; fillBranches(); render(); };
-$('#fBranch').onchange = e => { state.branch = e.target.value; render(); };
+$('#fBranch').onchange = e => {
+  state.branch = e.target.value;
+  // 只選支部時，自動帶入所屬本部
+  const d = districts.find(x => x.branch === state.branch);
+  if(state.branch && d && !state.hq){ state.hq = d.hq; fillFilters(); }
+  render();
+};
 $('#fSearch').oninput = e => { state.q = e.target.value; render(); };
 document.querySelectorAll('.legend input').forEach(c => c.onchange = () => { c.checked ? state.types.add(c.dataset.type) : state.types.delete(c.dataset.type); render(); });
 $('#prev').onclick = () => stepMonth(-1);
@@ -493,13 +778,18 @@ function stepMonth(n){
 }
 
 /* ===== Boot ===== */
-function start(rows, source){
+function start(rows, source, extra = {}){
+  if(Array.isArray(extra.reviewItems) && extra.reviewItems.length) reviewItems = extra.reviewItems;
+  reviews = extra.reviews || [];
+  apiLive = !!source.live;
   build(rows);
   const today = new Date(); today.setHours(0,0,0,0);
   const next = events.find(e => e.date >= today) || events[0];
   const focus = next ? next.date : today;
   state.month = [focus.getFullYear(), focus.getMonth()];
   state.sel = key(focus);
+  const qTab = new URLSearchParams(location.search).get('tab');
+  if(['cal','staff','review'].includes(qTab)) state.tab = qTab;
   renderHeader(); fillFilters(); render();
   $('#srcDot').classList.toggle('live', source.live);
   $('#srcText').textContent = source.text;
@@ -511,7 +801,7 @@ async function boot(){
       const res = await fetch(CONFIG.API_URL, { cache:'no-store' });
       const data = await res.json();
       if(!Array.isArray(data.rows)) throw new Error('bad data');
-      start(data.rows, { live:true, text:`與 Google 試算表同步 · 更新於 ${data.updated}` });
+      start(data.rows, { live:true, text:`與 Google 試算表同步 · 更新於 ${data.updated}` }, data);
       return;
     }catch(err){
       console.warn('API 讀取失敗，改用快照', err);
