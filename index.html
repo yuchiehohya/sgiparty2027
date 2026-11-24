@@ -312,6 +312,16 @@
   .close{background:var(--mint-soft);color:var(--navy)}
   .dot.live{background:var(--mint);box-shadow:0 0 0 3px rgba(22,179,154,.2)}
   @media (max-width:600px){ h1{font-size:25px} nav.tabs button{font-size:14px} }
+  .timer-hint{margin:10px 0 4px;border-radius:14px;padding:11px 14px;background:linear-gradient(135deg,#e3f7f1,#e9f4fd);font-size:13px;color:#2f5a52;line-height:1.7}
+  .tbtn-demo{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--mint);color:#fff;font-size:9px;align-items:center;justify-content:center;vertical-align:1px}
+  /* ===== 單項計時 ===== */
+  .tbtn{margin-left:auto;flex:none;width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
+    background:var(--mint);color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 8px rgba(22,179,154,.3);-webkit-tap-highlight-color:transparent}
+  .tbox.running{border-color:var(--coral);background:#fff3ec}
+  .tbox.running .tbtn{background:var(--coral);box-shadow:0 3px 8px rgba(255,122,89,.4);animation:pulse 1.2s infinite}
+  .tbox.running input{font-weight:800;color:#d4532f}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,122,89,.15)}}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -382,6 +392,7 @@
         <label class="field req"><span>填寫人</span><input id="rvFiller" placeholder="姓名"></label>
       </div>
       <div class="loadbar" id="loadbar"><span id="loadText"></span><button type="button" id="loadBtn">載入上次內容</button></div>
+      <div class="timer-hint">⏱ 每一格時間右邊的 <span class="tbtn-demo">▶</span> 可以直接計時：按一下開始，再按一下停止，時間會自動填進那一格。</div>
       <div class="items" id="rvItems"></div>
       <label class="field other"><span>其他檢討建議事項</span><textarea id="rvOther" placeholder="場地、動線、器材、時間掌控……"></textarea></label>
       <div class="submitbar">
@@ -392,6 +403,8 @@
   </section>
 </main>
 <div class="toast" id="toast"></div>
+
+
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-modal="true" role="dialog">
@@ -687,7 +700,8 @@ function setupReview(){
   // 項目
   const timeBox = (f, label, name) => `<div class="tbox"><span class="tl">${label}</span>
       <input type="number" inputmode="numeric" min="0" step="1" data-f="${f}m" aria-label="${esc(name)} ${label} 分"><span class="u">分</span>
-      <input type="number" inputmode="numeric" min="0" max="59" step="1" data-f="${f}s" aria-label="${esc(name)} ${label} 秒"><span class="u">秒</span></div>`;
+      <input type="number" inputmode="numeric" min="0" max="59" step="1" data-f="${f}s" aria-label="${esc(name)} ${label} 秒"><span class="u">秒</span>
+      <button type="button" class="tbtn" data-t="${f}" aria-label="${esc(name)} ${label} 計時">▶</button></div>`;
   $('#rvItems').innerHTML = reviewItems.map((it,i) => {
     const [no,name,plan,cue,count] = it, timed = it[5] !== false;
     return `<div class="it" data-i="${i}">
@@ -699,6 +713,7 @@ function setupReview(){
   const saved = store.get('rvMeta') || {};
   $('#rvFiller').value = saved.filler || '';
   rvReady = true;
+  ftResume();
   updateTotal();
 }
 
@@ -857,6 +872,79 @@ $('#rvForm').addEventListener('input', e => {
   if(/^(cue|prog)[ms]$/.test(e.target.dataset.f || '')) updateTotal();
   clearTimeout(saveDraft._t); saveDraft._t = setTimeout(saveDraft, 400);
 });
+
+
+/* ===== 計時共用工具 ===== */
+const now = () => Date.now();
+const W = { lock:null };
+async function keepAwake(on){
+  try{
+    if(on && 'wakeLock' in navigator && !W.lock) W.lock = await navigator.wakeLock.request('screen');
+    if(!on && W.lock){ await W.lock.release(); W.lock = null; }
+  }catch(e){ W.lock = null; }
+}
+store.del('rvTimer');   // 清掉舊版連續計時留下的暫存
+
+/* ================================================================
+   單項計時（做法 A）
+   每個「串場／程序／實際」欄位旁的 ▶：按一下開始，再按一下停止。
+   欄位已經有時間的話，會從那個時間接著計（可當作暫停／繼續）。
+   ================================================================ */
+const FT = { cur:null, tick:null };
+
+function ftBox(c){
+  const el = document.querySelector(`#rvItems .it[data-i="${c.i}"]`);
+  return el ? { el, box: el.querySelector(`[data-f=${c.f}m]`)?.closest('.tbox') } : {};
+}
+function ftMs(){ return FT.cur ? FT.cur.base + (now() - FT.cur.t0) : 0; }
+
+function ftStart(i, f){
+  if(!$('#rvDistrict').value){ toast('請先選擇地區，再開始計時', true); $('#rvDistrict').focus(); return; }
+  if(FT.cur) ftStop();
+  const el = document.querySelector(`#rvItems .it[data-i="${i}"]`);
+  const base = (getSec(el, f) || 0) * 1000;
+  FT.cur = { district:$('#rvDistrict').value, i, f, base, t0:now() };
+  store.set('rvFT', FT.cur);
+  clearInterval(FT.tick); FT.tick = setInterval(ftRender, 250);
+  keepAwake(true); ftRender(); lockDistrict();
+}
+function ftStop(){
+  if(!FT.cur) return;
+  const { el } = ftBox(FT.cur);
+  if(el) setSec(el, FT.cur.f, Math.round(ftMs() / 1000));
+  FT.cur = null; store.del('rvFT');
+  clearInterval(FT.tick); FT.tick = null;
+  keepAwake(false); ftRender(); updateTotal(); saveDraft(); lockDistrict();
+}
+function ftRender(){
+  document.querySelectorAll('#rvItems .tbox.running').forEach(b => {
+    b.classList.remove('running'); const btn = b.querySelector('.tbtn'); btn.textContent = '▶'; btn.setAttribute('aria-pressed','false');
+  });
+  if(!FT.cur) return;
+  const { el, box } = ftBox(FT.cur);
+  if(!el || !box) return;
+  box.classList.add('running');
+  const btn = box.querySelector('.tbtn'); btn.textContent = '■'; btn.setAttribute('aria-pressed','true');
+  setSec(el, FT.cur.f, Math.floor(ftMs() / 1000));
+  updateTotal();
+}
+function ftResume(){
+  const saved = store.get('rvFT');
+  if(!saved || !districts.some(d => d.name === saved.district)){ store.del('rvFT'); return; }
+  FT.cur = saved;
+  $('#rvDistrict').value = saved.district; onDistrictChange();
+  FT.tick = setInterval(ftRender, 250); ftRender(); lockDistrict();
+}
+function lockDistrict(){ $('#rvDistrict').disabled = !!FT.cur; }
+$('#rvItems').addEventListener('click', e => {
+  const btn = e.target.closest('.tbtn'); if(!btn) return;
+  const i = +btn.closest('.it').dataset.i, f = btn.dataset.t;
+  (FT.cur && FT.cur.i === i && FT.cur.f === f) ? ftStop() : ftStart(i, f);
+});
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && FT.cur){ W.lock = null; keepAwake(true); }
+});
+
 
 /* ===== Render ===== */
 function render(){
