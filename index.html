@@ -322,6 +322,60 @@
   .tbox.running .tbtn{background:var(--coral);box-shadow:0 3px 8px rgba(255,122,89,.4);animation:pulse 1.2s infinite}
   .tbox.running input{font-weight:800;color:#d4532f}
   @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,122,89,.15)}}
+  /* ===== 檢視檢討結果 ===== */
+  .rv-mode{margin-bottom:12px;display:flex;max-width:360px}
+  .rv-mode button{flex:1}
+  .rv-view{padding:14px}
+  .rv-view-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .rv-view-bar select{flex:1;min-width:180px;border:1px solid #dfebe6;border-radius:12px;padding:9px 11px;min-height:42px;background:#fff}
+  .rv-view-bar button{border:0;border-radius:999px;padding:9px 16px;background:var(--mint);color:#fff;font-weight:700;cursor:pointer}
+  .rv-sheet h3{text-align:center;color:#12493f;margin:4px 0 10px;font-size:18px}
+  .rv-meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;margin-bottom:10px;color:var(--ink)}
+  .rv-meta b{color:var(--muted);font-weight:600;margin-right:6px}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid #e3efea}
+  .rv-table{width:100%;min-width:640px;border-collapse:collapse;font-size:14px}
+  .rv-table th{background:var(--mint-soft);color:#0e7c6b;text-align:left;padding:9px 10px;font-size:13px;white-space:nowrap}
+  .rv-table td{padding:9px 10px;border-top:1px solid #edf3f0;vertical-align:top}
+  .rv-table tbody tr:nth-child(even){background:#fafdfc}
+  .rv-table .c-item{white-space:nowrap;font-weight:600}
+  .rv-table .c-item .no{display:inline-flex;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--mint);color:#fff;font-size:11px;align-items:center;justify-content:center;margin-right:6px}
+  .rv-table .c-item .no.pre{background:#e7ecea;color:var(--muted)}
+  .rv-table .c-num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rv-table .c-num small{display:block;font-size:11px;color:var(--muted)}
+  .rv-table .c-note{min-width:220px;line-height:1.6}
+  .rv-table .na{color:#b8c4bf} .rv-table .blank{color:#c9a9a0;font-size:12px}
+  .rv-table .over,.rv-sheet .over{color:#e0623e;font-weight:700} .rv-sheet .under{color:#2f8fcf;font-weight:700}
+  .rv-table tr.nocount td{color:var(--muted)}
+  .rv-table tfoot td{background:#f3faf7;font-weight:700;border-top:2px solid #d6ebe3}
+  .rv-other{margin-top:12px;background:#fffaf0;border-radius:12px;padding:10px 14px;font-size:14px}
+  .rv-other b{color:#b0702a} .rv-other p{margin:4px 0 0}
+  @media screen and (max-width:600px){
+    .tbl-wrap{overflow:visible}
+    .rv-table{min-width:0}
+    .rv-table thead{display:none}
+    .rv-table tr{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8px;padding:10px 12px;border-top:1px solid #edf3f0}
+    .rv-table tbody tr:first-child{border-top:0}
+    .rv-table td{border:0;padding:2px 0}
+    .rv-table .c-item,.rv-table .c-note{grid-column:1 / -1;min-width:0}
+    .rv-table .c-item{margin-bottom:2px}
+    .rv-table .c-num::before,.rv-table .c-note:not(:empty)::before{content:attr(data-label);display:block;font-size:11px;color:var(--muted);font-weight:400}
+    .rv-table .c-note:not(:empty){margin-top:4px;background:#f7fbf9;border-radius:8px;padding:6px 8px}
+    .rv-table tfoot td.c-note{background:none;padding:4px 0 0}
+    .rv-table tfoot td.c-note::before{content:none}
+  }
+  @media print{
+    @page{size:A4;margin:12mm}
+    body{background:#fff!important}
+    body *{visibility:hidden}
+    #rvView,#rvView *{visibility:visible}
+    #rvView{position:absolute;left:0;top:0;width:100%;box-shadow:none!important;padding:0}
+    .noprint,#rvView .noprint{display:none!important}
+    .tbl-wrap{overflow:visible;border-color:#ccc}
+    .rv-table{min-width:0;font-size:12px}
+    .rv-table th,.rv-table tfoot td,.rv-table .c-item .no{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toast,.submitbar,header,.status,#filters,#rvForm,#rvProgress,#rvMode{display:none!important}
+    main{padding:0}
+  }
   [hidden]{display:none!important}
 </style>
 </head>
@@ -382,7 +436,11 @@
   </section>
   <!-- 彩排檢討 -->
   <section id="tab-review" hidden>
-    <div class="card rv-progress" id="rvProgress"></div>
+    <div class="seg rv-mode noprint" id="rvMode">
+      <button type="button" class="on" data-m="form">填寫檢討表</button>
+      <button type="button" data-m="view">檢視檢討結果</button>
+    </div>
+    <div class="card rv-progress noprint" id="rvProgress"></div>
     <form class="card rv-form" id="rvForm" autocomplete="off" novalidate>
       <h2>台中中區 地區總會彩排檢討表</h2>
       <p class="hint">請各地區在總會彩排結束後填寫送出。同一地區再次送出，會覆蓋上一份。</p>
@@ -400,6 +458,13 @@
         <button type="submit" id="rvSubmit">送出</button>
       </div>
     </form>
+    <div class="card rv-view" id="rvView" hidden>
+      <div class="rv-view-bar noprint">
+        <select id="rvViewDistrict" aria-label="選擇地區"></select>
+        <button type="button" id="rvPrint">🖨 列印／存成 PDF</button>
+      </div>
+      <div id="rvViewBody"></div>
+    </div>
   </section>
 </main>
 <div class="toast" id="toast"></div>
@@ -727,9 +792,11 @@ function renderProgress(){
     <div class="dchips">${districts.map(d => `<button type="button" class="dchip ${done.has(d.name)?'done':''}" data-n="${esc(d.name)}"
       title="${done.has(d.name)?'已回傳 '+esc(done.get(d.name)):'尚未回傳'}">${esc(d.name)}</button>`).join('')}</div>`;
   $('#rvProgress').querySelectorAll('.dchip').forEach(b => b.onclick = () => {
+    if(rvMode === 'view'){ $('#rvViewDistrict').value = b.dataset.n; showReview(b.dataset.n); return; }
     $('#rvDistrict').value = b.dataset.n; onDistrictChange();
     $('#rvForm').scrollIntoView({behavior:'smooth', block:'start'});
   });
+  fillViewSelect();
 }
 
 /* 分、秒欄位 ↔ 秒數 */
@@ -844,6 +911,7 @@ async function submitReview(ev){
     store.del('rvDraft:' + data.district);
     const i = reviews.findIndex(x => x.district === data.district);
     i >= 0 ? reviews[i].updated = r.updated : reviews.push({ district:data.district, updated:r.updated });
+    delete viewCache[data.district];
     renderProgress();
     $('#loadbar').classList.add('show');
     $('#loadText').textContent = `${data.district} 已於 ${r.updated} 回傳過`;
@@ -945,6 +1013,102 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible' && FT.cur){ W.lock = null; keepAwake(true); }
 });
 
+
+
+/* ================================================================
+   檢視檢討結果：選地區 → 讀取已送出的檢討表 → 整理成表格
+   ================================================================ */
+let rvMode = 'form';
+const viewCache = {};
+
+function setRvMode(m){
+  rvMode = m;
+  document.querySelectorAll('#rvMode button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('#rvForm').hidden = m !== 'form';
+  $('#rvView').hidden = m !== 'view';
+  if(m === 'view'){
+    fillViewSelect();
+    const sel = $('#rvViewDistrict').value;
+    sel ? showReview(sel) : renderViewEmpty();
+  }
+}
+function fillViewSelect(){
+  const sel = $('#rvViewDistrict'); if(!sel) return;
+  const cur = sel.value;
+  const done = new Set(reviews.map(r => r.district));
+  const groups = {};
+  districts.forEach(d => (groups[d.hq+'本部 · '+d.branch+'支部'] ||= []).push(d));
+  sel.innerHTML = '<option value="">請選擇地區</option>' + Object.entries(groups).map(([g,ds]) =>
+    `<optgroup label="${esc(g)}">${ds.map(d => `<option value="${esc(d.name)}" ${d.name===cur?'selected':''}>${esc(d.name)}${done.has(d.name)?'　✓ 已回傳':'　（尚未回傳）'}</option>`).join('')}</optgroup>`).join('');
+}
+function renderViewEmpty(msg){
+  $('#rvViewBody').innerHTML = `<div class="empty">${msg || '請選擇地區，或點上方已回傳（✓）的地區'}</div>`;
+}
+
+async function showReview(name){
+  if(!name){ renderViewEmpty(); return; }
+  if(!CONFIG.API_URL){ renderViewEmpty('網站尚未連接試算表，暫時無法檢視'); return; }
+  if(!reviews.some(r => r.district === name)){ renderViewEmpty(`${esc(name)} 還沒有送出檢討表`); return; }
+  $('#rvViewBody').innerHTML = '<div class="empty">讀取中…</div>';
+  try{
+    const r = await api({ action:'load', pass:'', district:name });
+    if(!r.ok) throw new Error(r.error);
+    if(!r.data){ renderViewEmpty(`${esc(name)} 還沒有送出檢討表`); return; }
+    viewCache[name] = r.data;
+    if($('#rvViewDistrict').value === name) renderReviewTable(name, r.data);
+  }catch(e){ renderViewEmpty('讀取失敗，請稍後再試'); }
+}
+
+function renderReviewTable(name, data){
+  const d = districts.find(x => x.name === name) || {};
+  const sum = { plan:0, cue:0, prog:0 };
+  const t = v => (v === '' || v == null) ? '' : fmtSec(+v);
+  const rows = reviewItems.map((it, i) => {
+    const [no, nm, plan, cue, count] = it, timed = it[5] !== false;
+    const v = (data.items || [])[i] || {};
+    if(count){
+      sum.plan += plan;
+      if(v.cue !== '' && v.cue != null) sum.cue += +v.cue;
+      if(v.prog !== '' && v.prog != null) sum.prog += +v.prog;
+    }
+    const itemSec = (+v.cue || 0) + (+v.prog || 0);
+    const over = timed && (v.cue !== '' || v.prog !== '') && itemSec > plan * 60;
+    return `<tr class="${count ? '' : 'nocount'}">
+      <td class="c-item"><span class="no ${no?'':'pre'}">${no ? esc(no) : '開場前'}</span>${esc(nm)}</td>
+      <td class="c-num" data-label="預計">${plan} 分${count ? '' : '<small>不計入合計</small>'}</td>
+      <td class="c-num" data-label="串場">${!timed ? '<span class="na">不需記錄</span>' : cue ? (t(v.cue) || '<span class="blank">未填</span>') : '<span class="na">—</span>'}</td>
+      <td class="c-num ${over ? 'over' : ''}" data-label="程序">${!timed ? '<span class="na">不需記錄</span>' : (t(v.prog) || '<span class="blank">未填</span>')}</td>
+      <td class="c-note" data-label="檢討內容">${v.note ? br(v.note.replace(/\n/g,'／')) : ''}</td>
+    </tr>`;
+  }).join('');
+  const total = sum.cue + sum.prog, diff = total - sum.plan * 60;
+  $('#rvViewBody').innerHTML = `
+    <div class="rv-sheet">
+      <h3>台中中區 地區總會彩排檢討表</h3>
+      <div class="rv-meta">
+        <span><b>地區</b>${esc(name)}${d.branch ? `（${esc(d.hq)}本部 · ${esc(d.branch)}支部）` : ''}</span>
+        <span><b>彩排日期</b>${esc(data.date || '')}</span>
+        <span><b>填寫人</b>${esc(data.filler || '')}</span>
+        <span><b>送出時間</b>${esc(data.updated || '')}</span>
+      </div>
+      <div class="tbl-wrap"><table class="rv-table">
+        <thead><tr><th>項目</th><th>預計時間</th><th>串場時間</th><th>程序時間</th><th>檢討內容</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr>
+          <td class="c-item">合計</td><td class="c-num" data-label="預計">${sum.plan} 分</td><td class="c-num" data-label="串場">${fmtSec(sum.cue)}</td><td class="c-num" data-label="程序">${fmtSec(sum.prog)}</td>
+          <td class="c-note">實際共 <b>${fmtSec(total)}</b>，${diff > 0 ? `<span class="over">超過 ${fmtSec(diff)}</span>` : diff < 0 ? `<span class="under">少 ${fmtSec(-diff)}</span>` : '剛好'}</td>
+        </tr></tfoot>
+      </table></div>
+      ${data.other ? `<div class="rv-other"><b>其他檢討建議事項</b><p>${br(String(data.other).replace(/\n/g,'／'))}</p></div>` : ''}
+    </div>`;
+}
+
+document.querySelectorAll('#rvMode button').forEach(b => b.onclick = () => setRvMode(b.dataset.m));
+$('#rvViewDistrict').onchange = e => showReview(e.target.value);
+$('#rvPrint').onclick = () => {
+  if(!$('#rvViewBody .rv-sheet')){ toast('請先選擇已回傳的地區', true); return; }
+  window.print();
+};
 
 /* ===== Render ===== */
 function render(){
