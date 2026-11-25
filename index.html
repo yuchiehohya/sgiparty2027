@@ -171,6 +171,7 @@
   .dchip{font-size:12px;padding:3px 9px;border-radius:20px;background:#f1efe9;color:var(--muted);border:0;cursor:pointer}
   .dchip.done{background:#e1f0e5;color:#2f7a46;font-weight:600}
   .dchip.done::before{content:"✓ "}
+  .dchip .cnt{display:inline-block;margin-left:4px;min-width:16px;padding:0 4px;border-radius:8px;background:#0e9c84;color:#fff;font-size:10px;line-height:16px;text-align:center}
   .rv-form{padding:16px 14px 6px}
   .rv-form h2{margin:0 0 4px;font-size:18px;color:var(--navy);text-align:center;letter-spacing:.04em}
   .rv-form .hint{font-size:13px;color:var(--muted);text-align:center;margin:0 0 14px}
@@ -351,6 +352,11 @@
   .rv-table tfoot td{background:#f3faf7;font-weight:700;border-top:2px solid #d6ebe3}
   .rv-other{margin-top:12px;background:#fffaf0;border-radius:12px;padding:10px 14px;font-size:14px}
   .rv-other b{color:#b0702a} .rv-other p{margin:4px 0 0}
+  .rv-table small.who{display:inline-block;margin-left:5px;font-size:11px;color:var(--muted);font-weight:400}
+  .rv-table .c-num div + div{margin-top:2px}
+  .rv-table .c-note div + div{margin-top:6px;padding-top:6px;border-top:1px dashed #e3efea}
+  .who-b{display:inline-block;margin-right:6px;padding:0 7px;border-radius:8px;background:var(--mint-soft);color:#0e7c6b!important;font-size:12px;font-weight:700}
+  .rv-multi{font-size:12px;color:var(--muted);margin:-2px 0 8px}
   @media screen and (max-width:600px){
     .tbl-wrap{overflow:visible}
     .rv-table{min-width:0}
@@ -378,6 +384,29 @@
     .toast,.submitbar,header,.status,#filters,#rvForm,#rvProgress,#rvMode{display:none!important}
     main{padding:0}
   }
+  /* ===== 頁首鼓勵話語 ===== */
+  .hd-grid{display:grid;grid-template-columns:1fr;gap:4px}
+  .quote{
+    position:relative;overflow:hidden;align-self:center;margin:2px 0 16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(240,250,255,.88) 100%);
+    border-radius:22px;padding:18px 20px 34px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.9);
+  }
+  .quote::before{content:"“";position:absolute;right:14px;top:-18px;font-size:110px;line-height:1;color:rgba(22,179,154,.12);font-family:Georgia,serif;pointer-events:none}
+  .q-by{display:inline-block;font-size:12px;font-weight:700;color:#0e7c6b;background:var(--mint-soft);padding:3px 10px;border-radius:999px;margin-bottom:10px;letter-spacing:.06em}
+  .quote blockquote{margin:0;font-size:17px;font-weight:700;line-height:1.75;color:#173f38;letter-spacing:.03em}
+  .quote blockquote span{display:block}
+  .q-src{position:relative;z-index:1;text-align:right;font-size:12px;color:#4a6a63;margin-top:8px}
+  .q-hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:30px;opacity:.85}
+  @media (min-width:900px){
+    .hd-grid{grid-template-columns:minmax(0,1fr) minmax(360px,460px);gap:28px;align-items:center}
+    .quote{margin:0 0 16px}
+    .quote blockquote{font-size:18px}
+  }
+  @media (max-width:600px){
+    .quote{padding:14px 16px 30px;border-radius:18px}
+    .quote blockquote{font-size:15px;line-height:1.7}
+    .quote blockquote span{display:inline}
+  }
   [hidden]{display:none!important}
 </style>
 </head>
@@ -385,10 +414,15 @@
 
 <header>
   <div class="wrap">
-    <div class="eyebrow">台中中區 · 2027 年度</div>
-    <h1>地區友好總會</h1>
-    <div class="sub" id="range"></div>
-    <div class="stats" id="stats"></div>
+    <div class="hd-grid">
+      <div class="hd-main">
+        <div class="eyebrow">台中中區 · 2027 年度</div>
+        <h1>地區友好總會</h1>
+        <div class="sub" id="range"></div>
+        <div class="stats" id="stats"></div>
+      </div>
+      <aside class="quote" id="quote" hidden></aside>
+    </div>
     <nav class="tabs">
       <button class="on" data-tab="cal">行事曆</button>
       <button data-tab="staff">工作人員一覽</button>
@@ -445,13 +479,13 @@
     <div class="card rv-progress noprint" id="rvProgress"></div>
     <form class="card rv-form" id="rvForm" autocomplete="off" novalidate>
       <h2>台中中區 地區總會彩排檢討表</h2>
-      <p class="hint">請各地區在總會彩排結束後填寫送出。同一地區再次送出，會覆蓋上一份。</p>
+      <p class="hint">請各地區在總會彩排結束後填寫送出。同一地區可以多人分別填寫、各自送出，不會互相覆蓋；同一人再次送出，會更新自己那一份。</p>
       <div class="fields">
         <label class="field req"><span>地區</span><select id="rvDistrict"></select></label>
         <label class="field"><span>彩排日期</span><input id="rvDate" type="date"></label>
         <label class="field req"><span>填寫人</span><input id="rvFiller" placeholder="姓名" maxlength="30"></label>
       </div>
-      <div class="loadbar" id="loadbar"><span id="loadText"></span><button type="button" id="loadBtn">載入上次內容</button></div>
+      <div class="loadbar" id="loadbar"><span id="loadText"></span><button type="button" id="loadBtn">載入我上次的內容</button></div>
       <div class="timer-hint">⏱ 每一格時間右邊的 <span class="tbtn-demo">▶</span> 可以直接計時：按一下開始，再按一下停止，時間會自動填進那一格。</div>
       <div class="items" id="rvItems"></div>
       <label class="field other"><span>其他檢討建議事項</span><textarea id="rvOther" placeholder="場地、動線、器材、時間掌控……" maxlength="1000"></textarea></label>
@@ -487,7 +521,35 @@
 const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbx62-NK9vsRzDgKSLuaK732QAd0F4GheBsb5xfFpfyUeFRICW5XJklXHjxERMUd6QLz/exec',          // 例如 'https://script.google.com/macros/s/xxxxxx/exec'
   YEAR: 2026,           // 場次日期所在的年份（表上只有月/日）
+
+  // 頁首右側的鼓勵話語：每一行一個字串；不想顯示時，把 lines 改成 []
+  QUOTE: {
+    by: '池田大作先生指導',
+    lines: [
+      '只要戰勝眼前這道超越自身極限的難關，',
+      '眼前就會呈現出一片嶄新的風景。',
+      '因此，再加把勁努力、再堅持一下，',
+      '是非常重要的。'
+    ],
+    source: '摘自 2026.11.13《創價新聞》7版'
+  }
 };
+
+/* 頁首鼓勵話語 */
+(function renderQuote(){
+  const q = CONFIG.QUOTE, el = document.getElementById('quote');
+  if(!q || !q.lines || !q.lines.length) return;
+  const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  el.innerHTML = `
+    ${q.by ? `<div class="q-by">${e(q.by)}</div>` : ''}
+    <blockquote>${q.lines.map(l => `<span>${e(l)}</span>`).join('')}</blockquote>
+    ${q.source ? `<div class="q-src">——${e(q.source)}</div>` : ''}
+    <svg class="q-hills" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 42 C 60 18, 120 20, 190 36 S 320 30, 400 14 L400 60 L0 60Z" fill="#bfe9c9"/>
+      <path d="M0 52 C 80 34, 160 40, 240 50 S 350 44, 400 36 L400 60 L0 60Z" fill="#8fd6a3"/>
+    </svg>`;
+  el.hidden = false;
+})();
 
 /* 為保護個資，網站裡不保存任何名單；所有資料都即時從試算表讀取 */
 
@@ -766,8 +828,11 @@ function renderProgress(){
   $('#rvProgress').innerHTML = `
     <div class="top"><b>檢討表回傳進度</b><span>${apiLive ? `${n} / ${districts.length} 個地區` : '連接試算表後顯示'}</span></div>
     <div class="pbar"><i style="width:${pct}%"></i></div>
-    <div class="dchips">${districts.map(d => `<button type="button" class="dchip ${done.has(d.name)?'done':''}" data-n="${esc(d.name)}"
-      title="${done.has(d.name)?'已回傳 '+esc(done.get(d.name)):'尚未回傳'}">${esc(d.name)}</button>`).join('')}</div>`;
+    <div class="dchips">${districts.map(d => {
+      const rec = reviews.find(r => r.district === d.name), n = rec?.fillers?.length || (rec ? 1 : 0);
+      return `<button type="button" class="dchip ${rec?'done':''}" data-n="${esc(d.name)}"
+        title="${rec ? `${n} 人送出：${esc((rec.fillers||[]).join('、'))}（最後更新 ${esc(rec.updated)}）` : '尚未回傳'}">${esc(d.name)}${n > 1 ? `<span class="cnt">${n}</span>` : ''}</button>`;
+    }).join('')}</div>`;
   $('#rvProgress').querySelectorAll('.dchip').forEach(b => b.onclick = () => {
     if(rvMode === 'view'){ $('#rvViewDistrict').value = b.dataset.n; showReview(b.dataset.n); return; }
     $('#rvDistrict').value = b.dataset.n; onDistrictChange();
@@ -849,6 +914,8 @@ function saveDraft(){
   store.set('rvDraft:' + d, collect());
 }
 
+const normName = s => String(s || '').replace(/\s+/g, '');
+
 function onDistrictChange(){
   const name = $('#rvDistrict').value;
   const d = districts.find(x => x.name === name);
@@ -856,20 +923,35 @@ function onDistrictChange(){
   clearItems();
   const draft = name && store.get('rvDraft:' + name);
   if(draft) fill(draft);
+  updateLoadbar(!!draft);
+}
+
+/* 顯示這個地區已經有誰送出；填寫人是自己時，才出現「載入我上次的內容」 */
+function updateLoadbar(hasDraft){
+  const name = $('#rvDistrict').value;
   const done = reviews.find(r => r.district === name);
-  $('#loadbar').classList.toggle('show', !!done);
-  if(done) $('#loadText').textContent = `${name} 已於 ${done.updated} 回傳過${draft ? '（目前顯示的是這台裝置上的草稿）' : ''}`;
+  if(!name || !done){ $('#loadbar').classList.remove('show'); return; }
+  const fillers = done.fillers || [];
+  const me = normName($('#rvFiller').value);
+  const mine = !!me && fillers.some(f => normName(f) === me);
+  $('#loadText').textContent = `${name} 已有 ${fillers.length || 1} 人送出` +
+    (fillers.length ? `（${fillers.join('、')}）` : '') +
+    (mine ? '，包含你上次送出的紀錄' : '') +
+    (hasDraft ? '。目前顯示的是這台裝置上的草稿' : '');
+  $('#loadBtn').hidden = !mine;
+  $('#loadbar').classList.add('show');
 }
 
 async function loadExisting(){
-  const name = $('#rvDistrict').value, pass = '';
+  const name = $('#rvDistrict').value, filler = $('#rvFiller').value.trim();
+  if(!filler){ toast('請先填寫填寫人', true); $('#rvFiller').focus(); return; }
   $('#loadBtn').disabled = true;
   try{
-    const r = await api({ action:'load', pass, district:name });
+    const r = await api({ action:'load', pass:'', district:name, filler });
     if(!r.ok) throw new Error(r.error);
-    if(!r.data){ toast('試算表裡找不到這個地區的資料', true); return; }
+    if(!r.data){ toast(`找不到 ${filler} 在 ${name} 送出的紀錄`, true); return; }
     fill(r.data); saveDraft();
-    toast('已載入上次送出的內容');
+    toast('已載入你上次送出的內容');
   }catch(e){ toast(e.message || '載入失敗，請稍後再試', true); }
   finally{ $('#loadBtn').disabled = false; }
 }
@@ -886,19 +968,22 @@ async function submitReview(ev){
     if(!r.ok) throw new Error(r.error);
     store.set('rvMeta', { filler:data.filler });
     store.del('rvDraft:' + data.district);
-    const i = reviews.findIndex(x => x.district === data.district);
-    i >= 0 ? reviews[i].updated = r.updated : reviews.push({ district:data.district, updated:r.updated });
+    let rec = reviews.find(x => x.district === data.district);
+    if(!rec){ rec = { district:data.district, updated:'', fillers:[] }; reviews.push(rec); }
+    rec.updated = r.updated;
+    rec.fillers ||= [];
+    if(!rec.fillers.some(f => normName(f) === normName(data.filler))) rec.fillers.push(data.filler);
     delete viewCache[data.district];
     renderProgress();
-    $('#loadbar').classList.add('show');
-    $('#loadText').textContent = `${data.district} 已於 ${r.updated} 回傳過`;
-    toast(r.overwritten ? `已更新 ${data.district} 的檢討表` : `已送出 ${data.district} 的檢討表，謝謝！`);
+    updateLoadbar(false);
+    toast(r.overwritten ? `已更新你在 ${data.district} 的檢討表` : `已送出 ${data.district} 的檢討表，謝謝！`);
   }catch(e){
     toast(e.message === 'Failed to fetch' ? '網路連線失敗，內容已暫存在這台裝置，請稍後再送一次' : (e.message || '送出失敗'), true);
   }finally{ btn.disabled = false; btn.textContent = '送出'; }
 }
 
 $('#rvDistrict').onchange = onDistrictChange;
+$('#rvFiller').addEventListener('input', () => updateLoadbar(!!store.get('rvDraft:' + $('#rvDistrict').value)));
 $('#rvForm').addEventListener('change', e => {
   const f = e.target.dataset.f || '';
   if(!/^(cue|prog)[ms]$/.test(f) || e.target.value === '') return;
@@ -1012,11 +1097,11 @@ function setRvMode(m){
 function fillViewSelect(){
   const sel = $('#rvViewDistrict'); if(!sel) return;
   const cur = sel.value;
-  const done = new Set(reviews.map(r => r.district));
+  const cnt = new Map(reviews.map(r => [r.district, r.fillers?.length || 1]));
   const groups = {};
   districts.forEach(d => (groups[d.hq+'本部 · '+d.branch+'支部'] ||= []).push(d));
   sel.innerHTML = '<option value="">請選擇地區</option>' + Object.entries(groups).map(([g,ds]) =>
-    `<optgroup label="${esc(g)}">${ds.map(d => `<option value="${esc(d.name)}" ${d.name===cur?'selected':''}>${esc(d.name)}${done.has(d.name)?'　✓ 已回傳':'　（尚未回傳）'}</option>`).join('')}</optgroup>`).join('');
+    `<optgroup label="${esc(g)}">${ds.map(d => `<option value="${esc(d.name)}" ${d.name===cur?'selected':''}>${esc(d.name)}${cnt.has(d.name)?`　✓ ${cnt.get(d.name)} 人送出`:'　（尚未回傳）'}</option>`).join('')}</optgroup>`).join('');
 }
 function renderViewEmpty(msg){
   $('#rvViewBody').innerHTML = `<div class="empty">${msg || '請選擇地區，或點上方已回傳（✓）的地區'}</div>`;
@@ -1028,55 +1113,80 @@ async function showReview(name){
   if(!reviews.some(r => r.district === name)){ renderViewEmpty(`${esc(name)} 還沒有送出檢討表`); return; }
   $('#rvViewBody').innerHTML = '<div class="empty">讀取中…</div>';
   try{
-    const r = await api({ action:'load', pass:'', district:name });
+    const r = await api({ action:'view', pass:'', district:name });
     if(!r.ok) throw new Error(r.error);
-    if(!r.data){ renderViewEmpty(`${esc(name)} 還沒有送出檢討表`); return; }
-    viewCache[name] = r.data;
-    if($('#rvViewDistrict').value === name) renderReviewTable(name, r.data);
+    if(!r.records || !r.records.length){ renderViewEmpty(`${esc(name)} 還沒有送出檢討表`); return; }
+    viewCache[name] = r.records;
+    if($('#rvViewDistrict').value === name) renderReviewTable(name, r.records);
   }catch(e){ renderViewEmpty('讀取失敗，請稍後再試'); }
 }
 
-function renderReviewTable(name, data){
+function renderReviewTable(name, records){
   const d = districts.find(x => x.name === name) || {};
-  const sum = { plan:0, cue:0, prog:0 };
-  const t = v => (v === '' || v == null) ? '' : fmtSec(+v);
+  const multi = records.length > 1;
+  const has = v => v !== '' && v != null && !isNaN(+v);
+  const tagName = n => multi ? `<small class="who">${esc(n)}</small>` : '';
+
+  // 每位記錄者各自的合計
+  const per = records.map(rec => {
+    const o = { name: rec.filler, cue:0, prog:0 };
+    reviewItems.forEach((it,i) => { if(it[4]){ const v = rec.items?.[i] || {}; if(has(v.cue)) o.cue += +v.cue; if(has(v.prog)) o.prog += +v.prog; } });
+    return o;
+  });
+  let planTotal = 0; reviewItems.forEach(it => { if(it[4]) planTotal += it[2]; });
+
+  // 一格時間：只有一個值（或大家都一樣）就直接顯示；不一樣就逐人並列
+  function timeCell(i, f, plan){
+    const vals = records.map(rec => ({ n: rec.filler, v: rec.items?.[i]?.[f], tot: (+rec.items?.[i]?.cue || 0) + (+rec.items?.[i]?.prog || 0) }))
+      .filter(x => has(x.v));
+    if(!vals.length) return { html:'<span class="blank">未填</span>', over:false };
+    const same = vals.every(x => +x.v === +vals[0].v);
+    if(same) return { html: fmtSec(+vals[0].v) + (multi && vals.length > 1 ? `<small class="who">${vals.length} 人相同</small>` : multi ? tagName(vals[0].n) : ''), over: f === 'prog' && vals.some(x => x.tot > plan * 60) };
+    return { html: vals.map(x => `<div class="${f === 'prog' && x.tot > plan * 60 ? 'over' : ''}">${fmtSec(+x.v)}${tagName(x.n)}</div>`).join(''), over:false };
+  }
+
   const rows = reviewItems.map((it, i) => {
     const [no, nm, plan, cue, count] = it, timed = it[5] !== false;
-    const v = (data.items || [])[i] || {};
-    if(count){
-      sum.plan += plan;
-      if(v.cue !== '' && v.cue != null) sum.cue += +v.cue;
-      if(v.prog !== '' && v.prog != null) sum.prog += +v.prog;
-    }
-    const itemSec = (+v.cue || 0) + (+v.prog || 0);
-    const over = timed && (v.cue !== '' || v.prog !== '') && itemSec > plan * 60;
+    const c = timed && cue ? timeCell(i, 'cue', plan) : null;
+    const p = timed ? timeCell(i, 'prog', plan) : null;
+    const notes = records.map(rec => ({ n: rec.filler, t: rec.items?.[i]?.note })).filter(x => x.t);
     return `<tr class="${count ? '' : 'nocount'}">
       <td class="c-item"><span class="no ${no?'':'pre'}">${no ? esc(no) : '開場前'}</span>${esc(nm)}</td>
       <td class="c-num" data-label="預計">${plan} 分${count ? '' : '<small>不計入合計</small>'}</td>
-      <td class="c-num" data-label="串場">${!timed ? '<span class="na">不需記錄</span>' : cue ? (t(v.cue) || '<span class="blank">未填</span>') : '<span class="na">—</span>'}</td>
-      <td class="c-num ${over ? 'over' : ''}" data-label="程序">${!timed ? '<span class="na">不需記錄</span>' : (t(v.prog) || '<span class="blank">未填</span>')}</td>
-      <td class="c-note" data-label="檢討內容">${v.note ? br(v.note.replace(/\n/g,'／')) : ''}</td>
+      <td class="c-num" data-label="串場">${!timed ? '<span class="na">不需記錄</span>' : c ? c.html : '<span class="na">—</span>'}</td>
+      <td class="c-num ${p && p.over ? 'over' : ''}" data-label="程序">${!timed ? '<span class="na">不需記錄</span>' : p.html}</td>
+      <td class="c-note" data-label="檢討內容">${notes.map(x => `<div>${multi ? `<b class="who-b">${esc(x.n)}</b>` : ''}${br(String(x.t).replace(/\n/g,'／'))}</div>`).join('')}</td>
     </tr>`;
   }).join('');
-  const total = sum.cue + sum.prog, diff = total - sum.plan * 60;
+
+  const diffText = t => { const df = t - planTotal * 60; return df > 0 ? `<span class="over">超過 ${fmtSec(df)}</span>` : df < 0 ? `<span class="under">少 ${fmtSec(-df)}</span>` : '剛好'; };
+  const foot = multi
+    ? `<td class="c-num" data-label="串場">${per.map(x => `<div>${fmtSec(x.cue)}${tagName(x.name)}</div>`).join('')}</td>
+       <td class="c-num" data-label="程序">${per.map(x => `<div>${fmtSec(x.prog)}${tagName(x.name)}</div>`).join('')}</td>
+       <td class="c-note">${per.map(x => `<div><b class="who-b">${esc(x.name)}</b>實際共 <b>${fmtSec(x.cue + x.prog)}</b>，${diffText(x.cue + x.prog)}</div>`).join('')}</td>`
+    : `<td class="c-num" data-label="串場">${fmtSec(per[0].cue)}</td><td class="c-num" data-label="程序">${fmtSec(per[0].prog)}</td>
+       <td class="c-note">實際共 <b>${fmtSec(per[0].cue + per[0].prog)}</b>，${diffText(per[0].cue + per[0].prog)}</td>`;
+
+  const latest = records.map(r => r.updated || '').sort().pop();
+  const date = (records.find(r => r.date) || {}).date || '';
+  const others = records.filter(r => r.other);
+
   $('#rvViewBody').innerHTML = `
     <div class="rv-sheet">
       <h3>台中中區 地區總會彩排檢討表</h3>
       <div class="rv-meta">
         <span><b>地區</b>${esc(name)}${d.branch ? `（${esc(d.hq)}本部 · ${esc(d.branch)}支部）` : ''}</span>
-        <span><b>彩排日期</b>${esc(data.date || '')}</span>
-        <span><b>填寫人</b>${esc(data.filler || '')}</span>
-        <span><b>送出時間</b>${esc(data.updated || '')}</span>
+        <span><b>彩排日期</b>${esc(date)}</span>
+        <span><b>填寫人</b>${records.map(r => esc(r.filler)).join('、')}</span>
+        <span><b>最後更新</b>${esc(latest)}</span>
       </div>
+      ${multi ? `<p class="rv-multi">共 ${records.length} 位記錄者。時間相同時只顯示一次；不同時會並列每個人的紀錄，並標上姓名。</p>` : ''}
       <div class="tbl-wrap"><table class="rv-table">
         <thead><tr><th>項目</th><th>預計時間</th><th>串場時間</th><th>程序時間</th><th>檢討內容</th></tr></thead>
         <tbody>${rows}</tbody>
-        <tfoot><tr>
-          <td class="c-item">合計</td><td class="c-num" data-label="預計">${sum.plan} 分</td><td class="c-num" data-label="串場">${fmtSec(sum.cue)}</td><td class="c-num" data-label="程序">${fmtSec(sum.prog)}</td>
-          <td class="c-note">實際共 <b>${fmtSec(total)}</b>，${diff > 0 ? `<span class="over">超過 ${fmtSec(diff)}</span>` : diff < 0 ? `<span class="under">少 ${fmtSec(-diff)}</span>` : '剛好'}</td>
-        </tr></tfoot>
+        <tfoot><tr><td class="c-item">合計</td><td class="c-num" data-label="預計">${planTotal} 分</td>${foot}</tr></tfoot>
       </table></div>
-      ${data.other ? `<div class="rv-other"><b>其他檢討建議事項</b><p>${br(String(data.other).replace(/\n/g,'／'))}</p></div>` : ''}
+      ${others.length ? `<div class="rv-other"><b>其他檢討建議事項</b>${others.map(r => `<p>${multi ? `<b class="who-b">${esc(r.filler)}</b>` : ''}${br(String(r.other).replace(/\n/g,'／'))}</p>`).join('')}</div>` : ''}
     </div>`;
 }
 
