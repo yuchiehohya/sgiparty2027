@@ -385,7 +385,8 @@
     main{padding:0}
   }
   /* ===== 頁首鼓勵話語 ===== */
-  .hd-grid{display:grid;grid-template-columns:1fr;gap:4px}
+  .hd-grid{display:grid;grid-template-columns:1fr;grid-template-areas:"main" "quote" "tabs";gap:4px}
+  .hd-main{grid-area:main} .quote{grid-area:quote} .hd-grid nav.tabs{grid-area:tabs}
   .quote{
     position:relative;overflow:hidden;align-self:center;margin:2px 0 16px;
     background:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(240,250,255,.88) 100%);
@@ -398,8 +399,8 @@
   .q-src{position:relative;z-index:1;text-align:right;font-size:12px;color:#4a6a63;margin-top:8px}
   .q-hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:30px;opacity:.85}
   @media (min-width:900px){
-    .hd-grid{grid-template-columns:minmax(0,1fr) minmax(360px,460px);gap:28px;align-items:center}
-    .quote{margin:0 0 16px}
+    .hd-grid{grid-template-columns:minmax(0,1fr) minmax(360px,460px);grid-template-areas:"main quote" "tabs quote";column-gap:28px;row-gap:0}
+    .quote{align-self:end;margin:0}   /* 下緣對齊頁籤列 */
     .quote blockquote{font-size:18px}
   }
   @media (max-width:600px){
@@ -422,12 +423,12 @@
         <div class="stats" id="stats"></div>
       </div>
       <aside class="quote" id="quote" hidden></aside>
+      <nav class="tabs">
+        <button class="on" data-tab="cal">行事曆</button>
+        <button data-tab="staff">工作人員一覽</button>
+        <button data-tab="review">彩排檢討</button>
+      </nav>
     </div>
-    <nav class="tabs">
-      <button class="on" data-tab="cal">行事曆</button>
-      <button data-tab="staff">工作人員一覽</button>
-      <button data-tab="review">彩排檢討</button>
-    </nav>
   </div>
 </header>
 
