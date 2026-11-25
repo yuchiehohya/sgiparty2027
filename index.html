@@ -246,6 +246,13 @@
   .stat::before{content:"";position:absolute;left:8px;top:12px;bottom:12px;width:4px;border-radius:4px;background:var(--mint)}
   .stat:nth-child(2)::before{background:var(--coral)} .stat:nth-child(3)::before{background:var(--sun)}
   .stat b{color:var(--ink);font-size:20px}
+  .stat-next{max-width:100%}
+  .stat-next .nx-label{display:block}
+  .nx-list{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:5px}
+  .nx{display:inline-flex;align-items:baseline;gap:3px;background:#fff6e0;color:#7a5600;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+  .nx small{font-weight:400;font-size:11px;color:#a07a2a}
+  .nx.past{background:#f0f2f1;color:#9aa6a1;text-decoration:line-through}
+  .nx.past small{color:#b5bfbb}
   nav.tabs{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);border-radius:999px;padding:5px;gap:4px;box-shadow:var(--shadow);max-width:520px}
   nav.tabs button{color:var(--muted);opacity:1;border:0;border-radius:999px;padding:10px 8px;max-width:none;transition:background .2s,color .2s}
   nav.tabs button.on{background:var(--mint);color:#fff;box-shadow:0 4px 12px rgba(22,179,154,.35)}
@@ -631,14 +638,28 @@ function renderHeader(){
   const first = mains[0]?.date, last = mains[mains.length-1]?.date;
   $('#range').textContent = first ? `正式場次 ${first.getMonth()+1}/${first.getDate()} – ${last.getMonth()+1}/${last.getDate()}` : '';
   const target = districts.reduce((s,d) => s + (parseInt(d.target)||0), 0);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const nowT = new Date(), today = new Date(nowT); today.setHours(0,0,0,0);
   const next = mains.find(e => e.date >= today);
-  const daysLeft = next ? Math.round((next.date - today)/864e5) : null;
+  let nextCard = '';
+  if(next){
+    // 列出「下一個有場次的日子」的所有正式場次（依時間排序）
+    const sameDay = mains.filter(e => +e.date === +next.date);
+    const daysLeft = Math.round((next.date - today) / 864e5);
+    const started = e => { const m = String(e.time).match(/(\d{1,2}):(\d{2})/); if(!m) return false;
+      const t = new Date(e.date); t.setHours(+m[1], +m[2], 0, 0); return nowT >= t; };
+    const list = sameDay.map(e => `<span class="nx ${daysLeft === 0 && started(e) ? 'past' : ''}">${esc(e.d.name)}<small>${esc(e.time)}</small></span>`).join('');
+    nextCard = `<div class="stat stat-next">
+      <b>${daysLeft === 0 ? `今天 ${sameDay.length} 場` : `${daysLeft} 天`}</b>
+      <span class="nx-label">${daysLeft === 0 ? '今日場次' : `下一場 ${next.date.getMonth()+1}/${next.date.getDate()}（${WD[next.date.getDay()]}）`}</span>
+      <div class="nx-list">${list}</div></div>`;
+  }
   $('#stats').innerHTML = `
     <div class="stat"><b>${districts.length}</b>地區場次</div>
     <div class="stat"><b>${target.toLocaleString()}</b>出席目標</div>
-    ${next ? `<div class="stat"><b>${daysLeft===0?'今天':daysLeft+' 天'}</b>下一場：${esc(next.d.name)}</div>` : ''}`;
+    ${nextCard}`;
 }
+// 網頁開著時每分鐘更新一次（換日、場次開始時會自動變化）
+setInterval(() => { if(events.length) renderHeader(); }, 60000);
 
 function fillFilters(){
   const hqs = [...new Set(districts.map(d => d.hq))];
